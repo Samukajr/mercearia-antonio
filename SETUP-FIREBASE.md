@@ -49,6 +49,19 @@
 > firebase use winged
 > ```
 
+### Alternar projeto em tempo de execução (sem rebuild)
+
+No arquivo `js/firebase-config.js` há dois slots: `mercearia` (padrão) e `winged` (preencher com o SDK do seu projeto). Você pode alternar assim:
+
+- Por URL: acrescente `?project=mercearia` ou `?project=winged` na URL pública.
+- Por localStorage (persiste):
+```js
+localStorage.setItem('firebaseProject', 'winged'); // ou 'mercearia'
+location.reload();
+```
+
+> Importante: Preencha o bloco `winged` com o SDK Web do seu projeto antes de alternar.
+
 ## Passo 4: Obter Configuração do App Web
 
 1. Na página inicial do projeto, clique no ícone **"</>"** (Web)
