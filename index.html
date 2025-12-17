@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercearia do Antonio - Sistema de Gestão</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c5f2d">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="login-screen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <i class="fas fa-shopping-basket"></i>
+                <h1>Mercearia do Antonio</h1>
+                <p>Sistema de Gestão</p>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="login-email">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    <input 
+                        type="email" 
+                        id="login-email" 
+                        placeholder="seu@email.com"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">
+                        <i class="fas fa-lock"></i> Senha
+                    </label>
+                    <div class="password-input">
+                        <input 
+                            type="password" 
+                            id="login-password" 
+                            placeholder="••••••••"
+                            required
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('login-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Versão 1.0 | &copy; 2025 Mercearia do Antonio</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Principal -->
+    <div id="dashboard-screen" class="screen">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1><i class="fas fa-shopping-basket"></i> Mercearia do Antonio</h1>
+            </div>
+            <div class="header-right">
+                <span class="user-name" id="user-name">Antonio</span>
+                <button class="btn btn-icon" onclick="logout()" title="Sair">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-section="dashboard" onclick="showSection('dashboard')">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-section="vendas" onclick="showSection('vendas')">
+                    <i class="fas fa-cash-register"></i>
+                    <span>Nova Venda</span>
+                </a>
+                <a href="#" class="nav-item" data-section="estoque" onclick="showSection('estoque')">
+                    <i class="fas fa-boxes"></i>
+                    <span>Estoque</span>
+                </a>
+                <a href="#" class="nav-item" data-section="caixa" onclick="showSection('caixa')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Fluxo de Caixa</span>
+                </a>
+                <a href="#" class="nav-item" data-section="relatorios" onclick="showSection('relatorios')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Relatórios</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="dashboard-content">
+            <!-- Seção Dashboard -->
+            <section id="section-dashboard" class="content-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-home"></i> Dashboard</h2>
+                    <p class="date-display" id="current-date"></p>
+                </div>
+
+                <!-- Cards de Resumo -->
+                <div class="stats-grid">
+                    <div class="stat-card green">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Vendas Hoje</h3>
+                            <p class="stat-value" id="vendas-hoje">R$ 0,00</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Produtos em Estoque</h3>
+                            <p class="stat-value" id="total-produtos">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card orange">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Estoque Baixo</h3>
+                            <p class="stat-value" id="estoque-baixo">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card purple">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Saldo em Caixa</h3>
+                            <p class="stat-value" id="saldo-caixa">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vendas Recentes -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clock"></i> Vendas Recentes</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="vendas-recentes" class="vendas-list">
+                            <p class="empty-state">Nenhuma venda realizada hoje</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Nova Venda -->
+            <section id="section-vendas" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cash-register"></i> Nova Venda</h2>
+                </div>
+
+                <div class="venda-grid">
+                    <!-- Produtos -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Selecionar Produtos</h3>
+                            <input type="text" id="search-produto" class="search-input" placeholder="Buscar produto...">
+                        </div>
+                        <div class="card-body">
+                            <div id="lista-produtos-venda" class="produtos-grid">
+                                <!-- Produtos serão carregados aqui -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carrinho -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Carrinho</h3>
+                            <button class="btn btn-sm btn-danger" onclick="limparCarrinho()">
+                                <i class="fas fa-trash"></i> Limpar
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="carrinho-itens" class="carrinho-list">
+                                <p class="empty-state">Carrinho vazio</p>
+                            </div>
+                            
+                            <div class="carrinho-total">
+                                <div class="total-row">
+                                    <span>Subtotal:</span>
+                                    <span id="carrinho-subtotal">R$ 0,00</span>
+                                </div>
+                                <div class="total-row total-final">
+                                    <span>Total:</span>
+                                    <span id="carrinho-total">R$ 0,00</span>
+                                </div>
+                            </div>
+
+                            <div class="pagamento-section">
+                                <label>Forma de Pagamento:</label>
+                                <select id="forma-pagamento" class="form-control">
+                                    <option value="dinheiro">Dinheiro</option>
+                                    <option value="pix">PIX</option>
+                                    <option value="debito">Cartão Débito</option>
+                                    <option value="credito">Cartão Crédito</option>
+                                </select>
+                            </div>
+
+                            <button class="btn btn-primary btn-block" onclick="finalizarVenda()">
+                                <i class="fas fa-check"></i> Finalizar Venda
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Estoque -->
+            <section id="section-estoque" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-boxes"></i> Controle de Estoque</h2>
+                    <button class="btn btn-primary" onclick="showModalProduto()">
+                        <i class="fas fa-plus"></i> Novo Produto
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-controls">
+                            <input type="text" id="search-estoque" class="search-input" placeholder="Buscar produto...">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" id="tabela-estoque">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Categoria</th>
+                                        <th>Quantidade</th>
+                                        <th>Preço</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-estoque">
+                                    <tr>
+                                        <td colspan="6" class="empty-state">Nenhum produto cadastrado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Fluxo de Caixa -->
+            <section id="section-caixa" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-wallet"></i> Fluxo de Caixa</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-success" onclick="showModalMovimentacao('entrada')">
+                            <i class="fas fa-arrow-up"></i> Entrada
+                        </button>
+                        <button class="btn btn-danger" onclick="showModalMovimentacao('saida')">
+                            <i class="fas fa-arrow-down"></i> Saída
+                        </button>
+                    </div>
+                </div>
+
+                <div class="saldo-card">
+                    <h3>Saldo Atual</h3>
+                    <p class="saldo-valor" id="saldo-atual">R$ 0,00</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Movimentações</h3>
+                        <div class="filter-group">
+                            <select id="filtro-tipo" class="form-control-sm">
+                                <option value="todos">Todos</option>
+                                <option value="entrada">Entradas</option>
+                                <option value="saida">Saídas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Tipo</th>
+                                        <th>Descrição</th>
+                                        <th>Valor</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-movimentacoes">
+                                    <tr>
+                                        <td colspan="5" class="empty-state">Nenhuma movimentação registrada</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Relatórios -->
+            <section id="section-relatorios" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Relatórios</h2>
+                </div>
+
+                <div class="relatorios-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Vendas por Período</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Período:</label>
+                                <select id="periodo-vendas" class="form-control">
+                                    <option value="hoje">Hoje</option>
+                                    <option value="semana">Esta Semana</option>
+                                    <option value="mes">Este Mês</option>
+                                    <option value="ano">Este Ano</option>
+                                </select>
+                            </div>
+                            <div class="relatorio-resultado">
+                                <p>Total de Vendas: <strong id="rel-total-vendas">R$ 0,00</strong></p>
+                                <p>Quantidade: <strong id="rel-qtd-vendas">0</strong></p>
+                            </div>
+                            <button class="btn btn-primary" onclick="gerarRelatorioVendas()">
+                                <i class="fas fa-file-pdf"></i> Gerar PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Produtos Mais Vendidos</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="produtos-mais-vendidos" class="ranking-list">
+                                <p class="empty-state">Nenhuma venda registrada</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Produto -->
+    <div id="modal-produto" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-produto-title">Novo Produto</h3>
+                <button class="modal-close" onclick="closeModal('modal-produto')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-produto">
+                    <input type="hidden" id="produto-id">
+                    
+                    <div class="form-group">
+                        <label>Nome do Produto *</label>
+                        <input type="text" id="produto-nome" class="form-control" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Categoria *</label>
+                            <select id="produto-categoria" class="form-control" required>
+                                <option value="">Selecione...</option>
+                                <option value="paes">Pães</option>
+                                <option value="bolos">Bolos</option>
+                                <option value="doces">Doces</option>
+                                <option value="bebidas">Bebidas</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Preço (R$) *</label>
+                            <input type="number" id="produto-preco" class="form-control" step="0.01" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Quantidade *</label>
+                            <input type="number" id="produto-quantidade" class="form-control" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Estoque Mínimo *</label>
+                            <input type="number" id="produto-estoque-min" class="form-control" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-produto')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Movimentação -->
+    <div id="modal-movimentacao" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-movimentacao-title">Nova Movimentação</h3>
+                <button class="modal-close" onclick="closeModal('modal-movimentacao')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-movimentacao">
+                    <input type="hidden" id="movimentacao-tipo">
+                    
+                    <div class="form-group">
+                        <label>Descrição *</label>
+                        <input type="text" id="movimentacao-descricao" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Valor (R$) *</label>
+                        <input type="number" id="movimentacao-valor" class="form-control" step="0.01" min="0.01" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-movimentacao')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificação -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <!-- Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/vendas.js"></script>
+    <script src="js/estoque.js"></script>
+    <script src="js/caixa.js"></script>
+    <script src="js/relatorios.js"></script>
+</body>
+</html>

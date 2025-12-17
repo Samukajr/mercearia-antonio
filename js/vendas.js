@@ -1,0 +1,164 @@
+let carrinho = [];
+
+function carregarVendasRecentes() {
+  window.db.collection('vendas')
+    .where('data', '>=', inicioDoDia())
+    .orderBy('data', 'desc')
+    .limit(20)
+    .onSnapshot((snap) => {
+      const container = document.getElementById('vendas-recentes');
+      if (snap.empty) {
+        container.innerHTML = '<p class="empty-state">Nenhuma venda realizada hoje</p>';
+        return;
+      }
+      container.innerHTML = '';
+      snap.forEach((doc) => {
+        const v = doc.data();
+        const item = document.createElement('div');
+        item.className = 'venda-item';
+        item.innerHTML = `
+          <div class="venda-info">
+            <div class="venda-hora">${formatTime(v.data.toDate())}</div>
+            <div class="venda-descricao">${v.itens.map(i => i.nome).join(', ')}</div>
+          </div>
+          <div>
+            <span class="venda-valor">${formatCurrency(v.total)}</span>
+            <span class="venda-forma">${v.forma}</span>
+          </div>`;
+        container.appendChild(item);
+      });
+    });
+}
+
+function inicioDoDia() {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function formatCurrency(v) {
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+function formatTime(d) {
+  return d.toLocaleTimeString('pt-BR');
+}
+
+// Produtos para venda (carregados do estoque)
+async function carregarProdutosVenda() {
+  const ref = window.db.collection('produtos').orderBy('nome');
+  const snap = await ref.get();
+  const grid = document.getElementById('lista-produtos-venda');
+  grid.innerHTML = '';
+  if (snap.empty) {
+    grid.innerHTML = '<p class="empty-state">Sem produtos no estoque</p>';
+    return;
+  }
+  snap.forEach(doc => {
+    const p = doc.data();
+    const card = document.createElement('div');
+    card.className = `produto-card ${p.quantidade <= 0 ? 'sem-estoque' : ''}`;
+    card.onclick = () => { if (p.quantidade > 0) adicionarAoCarrinho(doc.id, p); };
+    card.innerHTML = `
+      <div class="produto-icon"><i class="fas fa-bread-slice"></i></div>
+      <h4>${p.nome}</h4>
+      <div class="produto-preco">${formatCurrency(p.preco)}</div>
+      <div class="produto-estoque">Estoque: ${p.quantidade}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function adicionarAoCarrinho(id, p) {
+  const idx = carrinho.findIndex(i => i.id === id);
+  if (idx >= 0) {
+    carrinho[idx].qtd += 1;
+  } else {
+    carrinho.push({ id, nome: p.nome, preco: p.preco, qtd: 1 });
+  }
+  renderizarCarrinho();
+}
+
+function renderizarCarrinho() {
+  const list = document.getElementById('carrinho-itens');
+  list.innerHTML = '';
+  if (carrinho.length === 0) {
+    list.innerHTML = '<p class="empty-state">Carrinho vazio</p>';
+  }
+  let subtotal = 0;
+  carrinho.forEach((i, idx) => {
+    subtotal += i.preco * i.qtd;
+    const row = document.createElement('div');
+    row.className = 'carrinho-item';
+    row.innerHTML = `
+      <div class="carrinho-item-info">
+        <div class="carrinho-item-nome">${i.nome}</div>
+        <div class="carrinho-item-preco">${formatCurrency(i.preco)} cada</div>
+      </div>
+      <div class="carrinho-item-qtd">
+        <button class="qtd-btn" onclick="alterarQtd(${idx}, -1)">-</button>
+        <span class="qtd-value">${i.qtd}</span>
+        <button class="qtd-btn" onclick="alterarQtd(${idx}, 1)">+</button>
+      </div>
+      <button class="carrinho-item-remove" onclick="removerCarrinho(${idx})"><i class="fas fa-times"></i></button>`;
+    list.appendChild(row);
+  });
+  document.getElementById('carrinho-subtotal').textContent = formatCurrency(subtotal);
+  document.getElementById('carrinho-total').textContent = formatCurrency(subtotal);
+}
+
+function alterarQtd(idx, delta) {
+  carrinho[idx].qtd += delta;
+  if (carrinho[idx].qtd <= 0) carrinho.splice(idx, 1);
+  renderizarCarrinho();
+}
+
+function removerCarrinho(idx) {
+  carrinho.splice(idx, 1);
+  renderizarCarrinho();
+}
+
+function limparCarrinho() {
+  carrinho = [];
+  renderizarCarrinho();
+}
+
+async function finalizarVenda() {
+  if (carrinho.length === 0) {
+    showToast('warning', 'Carrinho vazio');
+    return;
+  }
+  const forma = document.getElementById('forma-pagamento').value;
+  const total = carrinho.reduce((s, i) => s + i.preco * i.qtd, 0);
+  const itens = carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, qtd: i.qtd }));
+
+  const batch = window.db.batch();
+  const vendaRef = window.db.collection('vendas').doc();
+  batch.set(vendaRef, { forma, total, itens, data: firebase.firestore.Timestamp.now() });
+
+  // Baixar estoque
+  itens.forEach(i => {
+    const prodRef = window.db.collection('produtos').doc(i.id);
+    batch.update(prodRef, { quantidade: firebase.firestore.FieldValue.increment(-i.qtd) });
+  });
+
+  // Registrar movimentação no caixa
+  const movRef = window.db.collection('movimentacoes').doc();
+  batch.set(movRef, { tipo: 'entrada', origem: 'venda', descricao: `Venda (${forma})`, valor: total, data: firebase.firestore.Timestamp.now() });
+
+  try {
+    await batch.commit();
+    limparCarrinho();
+    carregarProdutosVenda();
+    showToast('success', 'Venda registrada com sucesso!');
+    atualizarSaldoCaixa();
+  } catch (err) {
+    console.error(err);
+    showToast('error', 'Erro ao registrar venda.');
+  }
+}
+
+// Expor globais
+window.carregarProdutosVenda = carregarProdutosVenda;
+window.limparCarrinho = limparCarrinho;
+window.finalizarVenda = finalizarVenda;
+window.alterarQtd = alterarQtd;
+window.removerCarrinho = removerCarrinho;

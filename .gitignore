@@ -1,0 +1,28 @@
+# Dependências
+node_modules/
+.npm
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env (se usar variáveis locais no futuro)
+.env
+.env.local
+
+# Build (se adicionar build step)
+dist/
+build/
+
+# Cache
+.cache/

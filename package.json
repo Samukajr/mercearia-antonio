@@ -1,0 +1,9 @@
+{
+  "name": "mercearia-antonio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npx http-server -c-1",
+    "serve": "npx serve ."
+  }
+}
