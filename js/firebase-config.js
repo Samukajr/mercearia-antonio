@@ -7,8 +7,8 @@ const firebaseConfigs = {
     apiKey: "AIzaSyA-R6PbKw53ODnaNMjhusP5ovw3hA62nE0",
     authDomain: "mercearia-antonio-62e60.firebaseapp.com",
     projectId: "mercearia-antonio-62e60",
-    // Observação: o formato mais amplamente compatível para Storage é appspot.com
-    storageBucket: "mercearia-antonio-62e60.appspot.com",
+    // Valor fornecido pelo SDK; se usar Storage, mantenha este
+    storageBucket: "mercearia-antonio-62e60.firebasestorage.app",
     messagingSenderId: "692309702444",
     appId: "1:692309702444:web:c4587eceff3e71a9095e89",
     measurementId: "G-1J01PY9DT8"
@@ -46,6 +46,7 @@ const selectedConfig = firebaseConfigs[selectedKey];
 window.firebaseConfigs = firebaseConfigs;
 window.firebaseProjectKey = selectedKey;
 window.firebaseConfig = selectedConfig;
+console.log('[Firebase] Projeto selecionado:', selectedKey, 'ProjectId:', selectedConfig && selectedConfig.projectId);
 
 // Aviso caso o projeto alternativo não esteja preenchido
 if (!selectedConfig || !selectedConfig.projectId) {

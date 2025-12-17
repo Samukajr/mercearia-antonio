@@ -5,5 +5,8 @@
   "scripts": {
     "start": "npx http-server -c-1",
     "serve": "npx serve ."
+  },
+  "dependencies": {
+    "firebase": "^12.7.0"
   }
 }

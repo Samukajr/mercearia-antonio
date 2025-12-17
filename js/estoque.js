@@ -21,6 +21,14 @@ function carregarEstoque() {
         </td>`;
       tbody.appendChild(tr);
     });
+  }, (err) => {
+    console.error('Erro ao ouvir estoque', err);
+    const code = err && err.code ? err.code : 'erro-desconhecido';
+    if (code === 'permission-denied') {
+      showToast('error', 'Permissão negada no Firestore. Publique as regras e confirme o banco criado.');
+    } else {
+      showToast('error', `Falha ao carregar estoque (${code}).`);
+    }
   });
 }
 

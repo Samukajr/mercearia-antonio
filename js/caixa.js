@@ -22,15 +22,31 @@ function carregarMovimentacoes() {
           </td>`;
         tbody.appendChild(tr);
       });
+    }, (err) => {
+      console.error('Erro ao ouvir movimentações', err);
+      const code = err && err.code ? err.code : 'erro-desconhecido';
+      if (code === 'permission-denied') {
+        showToast('error', 'Permissão negada no Firestore. Publique as regras e confirme o banco criado.');
+      } else {
+        showToast('error', `Falha ao carregar movimentações (${code}).`);
+      }
     });
 }
 
 async function atualizarSaldoCaixa() {
-  const entradas = await window.db.collection('movimentacoes').where('tipo', '==', 'entrada').get();
-  const saidas = await window.db.collection('movimentacoes').where('tipo', '==', 'saida').get();
-  const soma = (snap) => snap.docs.reduce((s, d) => s + (d.data().valor || 0), 0);
-  const saldo = soma(entradas) - soma(saidas);
-  document.getElementById('saldo-atual').textContent = formatCurrency(saldo);
+  try {
+    const entradas = await window.db.collection('movimentacoes').where('tipo', '==', 'entrada').get();
+    const saidas = await window.db.collection('movimentacoes').where('tipo', '==', 'saida').get();
+    const soma = (snap) => snap.docs.reduce((s, d) => s + (d.data().valor || 0), 0);
+    const saldo = soma(entradas) - soma(saidas);
+    document.getElementById('saldo-atual').textContent = formatCurrency(saldo);
+  } catch (err) {
+    console.error('Erro ao atualizar saldo de caixa', err);
+    const code = err && err.code ? err.code : 'erro-desconhecido';
+    if (code === 'permission-denied') {
+      showToast('error', 'Sem permissão para ler movimentações. Publique regras do Firestore.');
+    }
+  }
 }
 
 function showModalMovimentacao(tipo) {

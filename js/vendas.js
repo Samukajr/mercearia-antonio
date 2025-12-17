@@ -46,25 +46,35 @@ function formatTime(d) {
 // Produtos para venda (carregados do estoque)
 async function carregarProdutosVenda() {
   const ref = window.db.collection('produtos').orderBy('nome');
-  const snap = await ref.get();
   const grid = document.getElementById('lista-produtos-venda');
   grid.innerHTML = '';
-  if (snap.empty) {
-    grid.innerHTML = '<p class="empty-state">Sem produtos no estoque</p>';
-    return;
+  try {
+    const snap = await ref.get();
+    if (snap.empty) {
+      grid.innerHTML = '<p class="empty-state">Sem produtos no estoque</p>';
+      return;
+    }
+    snap.forEach(doc => {
+      const p = doc.data();
+      const card = document.createElement('div');
+      card.className = `produto-card ${p.quantidade <= 0 ? 'sem-estoque' : ''}`;
+      card.onclick = () => { if (p.quantidade > 0) adicionarAoCarrinho(doc.id, p); };
+      card.innerHTML = `
+        <div class="produto-icon"><i class="fas fa-bread-slice"></i></div>
+        <h4>${p.nome}</h4>
+        <div class="produto-preco">${formatCurrency(p.preco)}</div>
+        <div class="produto-estoque">Estoque: ${p.quantidade}</div>`;
+      grid.appendChild(card);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar produtos para venda', err);
+    const code = err && err.code ? err.code : 'erro-desconhecido';
+    if (code === 'permission-denied') {
+      grid.innerHTML = '<p class="empty-state">Sem permissão para ler produtos. Publique regras do Firestore.</p>';
+    } else {
+      grid.innerHTML = `<p class="empty-state">Falha ao carregar produtos (${code}).</p>`;
+    }
   }
-  snap.forEach(doc => {
-    const p = doc.data();
-    const card = document.createElement('div');
-    card.className = `produto-card ${p.quantidade <= 0 ? 'sem-estoque' : ''}`;
-    card.onclick = () => { if (p.quantidade > 0) adicionarAoCarrinho(doc.id, p); };
-    card.innerHTML = `
-      <div class="produto-icon"><i class="fas fa-bread-slice"></i></div>
-      <h4>${p.nome}</h4>
-      <div class="produto-preco">${formatCurrency(p.preco)}</div>
-      <div class="produto-estoque">Estoque: ${p.quantidade}</div>`;
-    grid.appendChild(card);
-  });
 
   // Vínculo da busca
   const search = document.getElementById('search-produto');

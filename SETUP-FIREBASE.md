@@ -122,6 +122,18 @@ service cloud.firestore {
 
 4. Clique em **"Publicar"** (Publish)
 
+### Alternativa rápida via CLI (firebase-tools)
+
+No terminal, com o projeto padrão já configurado em `.firebaserc`:
+
+```powershell
+firebase login
+firebase use mercearia-antonio-62e60
+firebase deploy --only firestore:rules
+```
+
+> Observação: o banco Firestore precisa estar criado previamente no Console para que as regras sejam aplicadas.
+
 ## Passo 7: Deploy no Netlify
 ### Alternativa: Deploy via GitHub Pages (Gratuito)
 
@@ -219,3 +231,10 @@ Repita para mais produtos se desejar!
 - Confirme que criou o usuário no Firebase Console
 - Verifique se o email/senha estão corretos
 - Limpe cache do navegador (Ctrl+Shift+Delete)
+
+### Erros de Autenticação em GitHub Pages
+
+- **auth/unauthorized-domain:** adicione `github.io` e `seu-usuario.github.io` em Authentication → Settings → Authorized domains.
+- **auth/operation-not-allowed:** ative o provedor Email/Password em Authentication → Sign-in method.
+- **auth/network-request-failed:** verifique conexão, bloqueios de rede e tente recarregar sem cache.
+- **Dica:** na tela de login agora mostramos o código do erro para ajudar no diagnóstico.

@@ -36,8 +36,18 @@ if (loginForm) {
       await window.auth.signInWithEmailAndPassword(email, password);
       showToast('success', 'Bem-vindo!');
     } catch (err) {
-      console.error(err);
-      showToast('error', 'Falha no login. Verifique suas credenciais.');
+      console.error('Erro de login', err);
+      const code = err && err.code ? err.code : 'erro-desconhecido';
+      const map = {
+        'auth/invalid-email': 'Email inválido.',
+        'auth/user-not-found': 'Usuário não encontrado.',
+        'auth/wrong-password': 'Senha incorreta.',
+        'auth/operation-not-allowed': 'Provedor desativado (ative Email/Password no Firebase).',
+        'auth/unauthorized-domain': 'Domínio não autorizado (adicione github.io e seu-usuario.github.io em Auth → Settings).',
+        'auth/network-request-failed': 'Falha de rede (verifique conexão ou bloqueios).'
+      };
+      const friendly = map[code] || 'Verifique credenciais e configuração do Firebase.';
+      showToast('error', `Falha no login (${code}). ${friendly}`);
     }
   });
 }
