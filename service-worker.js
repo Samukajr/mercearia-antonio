@@ -1,16 +1,15 @@
 const CACHE_NAME = 'mercearia-v1';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/css/styles.css',
-  '/css/login.css',
-  '/css/components.css',
-  '/js/app.js',
-  '/js/firebase-config.js',
-  '/js/vendas.js',
-  '/js/estoque.js',
-  '/js/caixa.js',
-  '/js/relatorios.js'
+  'index.html',
+  'css/styles.css',
+  'css/login.css',
+  'css/components.css',
+  'js/app.js',
+  'js/firebase-config.js',
+  'js/vendas.js',
+  'js/estoque.js',
+  'js/caixa.js',
+  'js/relatorios.js'
 ];
 
 self.addEventListener('install', (event) => {

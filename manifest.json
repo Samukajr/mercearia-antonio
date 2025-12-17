@@ -1,7 +1,8 @@
 {
   "name": "Mercearia do Antonio",
   "short_name": "Mercearia",
-  "start_url": "/",
+  "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2c5f2d",

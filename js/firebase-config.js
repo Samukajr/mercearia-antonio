@@ -19,6 +19,7 @@ window.db = firebase.firestore();
 // Registro do Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').catch(console.error);
+    // Caminho relativo para funcionar em GitHub Pages (subpasta)
+    navigator.serviceWorker.register('service-worker.js').catch(console.error);
   });
 }

@@ -87,33 +87,31 @@ service cloud.firestore {
 4. Clique em **"Publicar"** (Publish)
 
 ## Passo 7: Deploy no Netlify
+### Alternativa: Deploy via GitHub Pages (Gratuito)
 
-### Via Netlify Drop (Mais Rápido)
-
-1. Acesse: https://app.netlify.com/drop
-2. Arraste a **pasta inteira** `e:\APP\mercearia-antonio\` para a área de drop
-3. Aguarde o upload e deploy
-4. Anote a URL gerada (ex: `https://random-name.netlify.app`)
-
-### Via Git + Netlify (Recomendado)
-
-1. Inicialize Git na pasta:
+1. Faça push para o GitHub (já conectado):
 ```powershell
 cd e:\APP\mercearia-antonio\
-git init
 git add .
-git commit -m "Initial commit - Mercearia do Antonio"
+git commit -m "Deploy via GitHub Pages"
+git push -u origin main
 ```
 
-2. Crie repositório no GitHub e faça push
+2. No GitHub, abra **Settings → Pages**:
+  - Source: **Deploy from a branch**
+  - Branch: **main**
+  - Folder: **/** (root)
+  - Salve; aguarde a publicação.
 
-3. No Netlify:
-   - Clique em **"Add new site"** → **"Import an existing project"**
-   - Conecte com GitHub e selecione o repositório
-   - Build settings:
-     - Build command: (deixe vazio)
-     - Publish directory: `.`
-   - Clique em **"Deploy"**
+3. URL pública: `https://<seu-usuario>.github.io/mercearia-antonio/`
+
+4. No **Firebase Console → Authentication → Settings (Authorized domains)**:
+  - Adicione: `github.io` e `<seu-usuario>.github.io`
+  - (Mantenha `localhost` para testes locais)
+
+5. Observações de PWA em GitHub Pages:
+  - O `service-worker.js` e `manifest.json` foram ajustados para caminhos relativos.
+  - Instalação PWA pode depender de HTTPS e manifest válido (GitHub Pages atende).
 
 ## Passo 8: Criar Primeiro Usuário
 
@@ -158,7 +156,7 @@ Repita para mais produtos se desejar!
 - [ ] Firestore criado
 - [ ] Config copiada para `js/firebase-config.js`
 - [ ] Regras do Firestore publicadas
-- [ ] Deploy no Netlify concluído
+- [ ] Deploy via GitHub Pages concluído
 - [ ] Primeiro usuário criado
 - [ ] Login testado com sucesso
 - [ ] Sistema funcionando online!
