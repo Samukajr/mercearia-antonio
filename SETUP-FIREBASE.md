@@ -26,6 +26,11 @@
 4. Escolha a localização: **"southamerica-east1"** (São Paulo) ou a mais próxima
 5. Clique em **"Enable"** ou **"Ativar"**
 
+> Se aparecer mensagem de API não habilitada ao usar a aplicação, habilite a API do Firestore no Console de APIs (Google Cloud):
+> - Acesse: https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=mercearia-antonio
+> - Clique em **Enable** (Habilitar)
+> - Aguarde alguns minutos para propagação e teste novamente
+
 ## Passo 4: Obter Configuração do App Web
 
 1. Na página inicial do projeto, clique no ícone **"</>"** (Web)
