@@ -10,6 +10,26 @@ async function gerarRelatorioVendas() {
   document.getElementById('rel-total-vendas').textContent = formatCurrency(total);
   document.getElementById('rel-qtd-vendas').textContent = String(qtd);
   showToast('success', 'Relatório atualizado!');
+
+  // Gerar PDF com jsPDF
+  try {
+    const { jsPDF } = window.jspdf || {};
+    if (jsPDF) {
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text('Mercearia do Antonio', 14, 20);
+      doc.setFontSize(12);
+      doc.text(`Relatório de Vendas - Período: ${periodo.toUpperCase()}`, 14, 30);
+      doc.text(`Total de Vendas: ${formatCurrency(total)}`, 14, 40);
+      doc.text(`Quantidade de Vendas: ${qtd}`, 14, 50);
+      doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 60);
+      doc.save(`relatorio-vendas-${periodo}.pdf`);
+      showToast('success', 'PDF gerado com sucesso!');
+    }
+  } catch (err) {
+    console.error('Falha ao gerar PDF', err);
+    showToast('error', 'Falha ao gerar PDF');
+  }
 }
 
 function obterRangePeriodo(tipo) {
@@ -75,3 +95,71 @@ async function carregarRankingProdutos() {
 // Expor globais
 window.gerarRelatorioVendas = gerarRelatorioVendas;
 window.carregarRankingProdutos = carregarRankingProdutos;
+window.exportarProdutosCSV = exportarProdutosCSV;
+window.exportarMovimentacoesCSV = exportarMovimentacoesCSV;
+
+async function exportarProdutosCSV() {
+  try {
+    const snap = await window.db.collection('produtos').orderBy('nome').get();
+    const linhas = ['nome,categoria,preco,quantidade,estoqueMin'];
+    snap.forEach((d) => {
+      const p = d.data();
+      const linha = [
+        escapeCSV(p.nome || ''),
+        escapeCSV(p.categoria || ''),
+        String(p.preco ?? 0),
+        String(p.quantidade ?? 0),
+        String(p.estoqueMin ?? 0)
+      ].join(',');
+      linhas.push(linha);
+    });
+    baixarCSV(linhas.join('\n'), `produtos-${new Date().toISOString().slice(0,10)}.csv`);
+    showToast('success', 'CSV de produtos gerado!');
+  } catch (err) {
+    console.error(err);
+    showToast('error', 'Falha ao exportar produtos');
+  }
+}
+
+async function exportarMovimentacoesCSV() {
+  try {
+    const snap = await window.db.collection('movimentacoes').orderBy('data', 'desc').get();
+    const linhas = ['data,tipo,descricao,valor'];
+    snap.forEach((d) => {
+      const m = d.data();
+      const dataStr = m.data?.toDate ? m.data.toDate().toISOString() : '';
+      const linha = [
+        dataStr,
+        escapeCSV(m.tipo || ''),
+        escapeCSV(m.descricao || ''),
+        String(m.valor ?? 0)
+      ].join(',');
+      linhas.push(linha);
+    });
+    baixarCSV(linhas.join('\n'), `movimentacoes-${new Date().toISOString().slice(0,10)}.csv`);
+    showToast('success', 'CSV de movimentações gerado!');
+  } catch (err) {
+    console.error(err);
+    showToast('error', 'Falha ao exportar movimentações');
+  }
+}
+
+function baixarCSV(conteudo, nome) {
+  const blob = new Blob([conteudo], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function escapeCSV(str) {
+  const s = String(str ?? '');
+  if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}

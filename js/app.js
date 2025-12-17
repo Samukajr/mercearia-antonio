@@ -60,7 +60,16 @@ window.auth.onAuthStateChanged((user) => {
     carregarEstoque();
     carregarMovimentacoes();
     carregarVendasRecentes();
+    // Pré-carregar lista de produtos para a tela de venda
+    if (window.carregarProdutosVenda) {
+      window.carregarProdutosVenda();
+    }
+    // Atualizar ranking de produtos mais vendidos
+    if (window.carregarRankingProdutos) {
+      window.carregarRankingProdutos();
+    }
     atualizarSaldoCaixa();
+    atualizarCardsDashboard();
   } else {
     dashboardScreen.classList.remove('active');
     loginScreen.classList.add('active');
@@ -73,6 +82,40 @@ function atualizarDataAtual() {
   const now = new Date();
   const fmt = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
   el.textContent = fmt.charAt(0).toUpperCase() + fmt.slice(1);
+}
+
+// Atualizar cards do dashboard
+async function atualizarCardsDashboard() {
+  try {
+    const produtosSnap = await window.db.collection('produtos').get();
+    const totalProdutos = produtosSnap.size;
+    let baixo = 0;
+    produtosSnap.forEach((d) => {
+      const p = d.data();
+      if ((p.quantidade || 0) <= (p.estoqueMin || 0)) baixo++;
+    });
+    const totalEl = document.getElementById('total-produtos');
+    const baixoEl = document.getElementById('estoque-baixo');
+    if (totalEl) totalEl.textContent = String(totalProdutos);
+    if (baixoEl) baixoEl.textContent = String(baixo);
+
+    const inicio = new Date(); inicio.setHours(0,0,0,0);
+    const vendasHojeSnap = await window.db.collection('vendas')
+      .where('data', '>=', inicio)
+      .get();
+    const totalHoje = vendasHojeSnap.docs.reduce((s, d) => s + (d.data().total || 0), 0);
+    const vendasHojeEl = document.getElementById('vendas-hoje');
+    if (vendasHojeEl) vendasHojeEl.textContent = formatCurrency(totalHoje);
+
+    const entradas = await window.db.collection('movimentacoes').where('tipo', '==', 'entrada').get();
+    const saidas = await window.db.collection('movimentacoes').where('tipo', '==', 'saida').get();
+    const soma = (snap) => snap.docs.reduce((s, d) => s + (d.data().valor || 0), 0);
+    const saldo = soma(entradas) - soma(saidas);
+    const saldoEl = document.getElementById('saldo-caixa');
+    if (saldoEl) saldoEl.textContent = formatCurrency(saldo);
+  } catch (err) {
+    console.error('Erro ao atualizar cards do dashboard', err);
+  }
 }
 
 // Modal helpers

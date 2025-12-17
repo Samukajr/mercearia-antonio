@@ -65,6 +65,18 @@ async function carregarProdutosVenda() {
       <div class="produto-estoque">Estoque: ${p.quantidade}</div>`;
     grid.appendChild(card);
   });
+
+  // Vínculo da busca
+  const search = document.getElementById('search-produto');
+  if (search) {
+    search.addEventListener('input', () => {
+      const q = search.value.toLowerCase();
+      grid.querySelectorAll('.produto-card').forEach((el) => {
+        const nome = el.querySelector('h4')?.textContent?.toLowerCase() || '';
+        el.style.display = nome.includes(q) ? '' : 'none';
+      });
+    });
+  }
 }
 
 function adicionarAoCarrinho(id, p) {
