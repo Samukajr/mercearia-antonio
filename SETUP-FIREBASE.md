@@ -27,9 +27,27 @@
 5. Clique em **"Enable"** ou **"Ativar"**
 
 > Se aparecer mensagem de API não habilitada ao usar a aplicação, habilite a API do Firestore no Console de APIs (Google Cloud):
-> - Acesse: https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=mercearia-antonio
+> - Descubra seu **Project ID** no Firebase Console → Project Settings (ex.: `mercearia-antonio-62e60`)
+> - Abra: https://console.cloud.google.com/apis/api/firestore.googleapis.com/overview?project=SEU_PROJECT_ID
 > - Clique em **Enable** (Habilitar)
 > - Aguarde alguns minutos para propagação e teste novamente
+
+### Sincronizar Firebase x Google Cloud (mesmo projeto)
+
+1. No Firebase Console → Project Settings, copie o **Project ID** do projeto usado no `js/firebase-config.js`.
+2. No topo do Google Cloud Console, selecione exatamente o mesmo projeto (Project ID idêntico).
+3. Habilite estas APIs (links com o seu Project ID):
+  - Firestore: https://console.cloud.google.com/apis/api/firestore.googleapis.com/overview?project=SEU_PROJECT_ID
+  - Identity Toolkit (Auth): https://console.cloud.google.com/apis/api/identitytoolkit.googleapis.com/overview?project=SEU_PROJECT_ID (opcional)
+4. Garanta que o **Firestore Database** foi criado (não Realtime Database).
+5. Em Authentication → Settings, adicione `github.io` e `seu-usuario.github.io` em Authorized domains.
+
+> Dica CLI: se você possui mais de um projeto no mesmo repositório, adicione aliases no `.firebaserc` e alterne:
+> ```powershell
+> firebase use mercearia-antonio-62e60
+> # ou
+> firebase use winged
+> ```
 
 ## Passo 4: Obter Configuração do App Web
 
