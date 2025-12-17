@@ -2,13 +2,13 @@
 // Projeto SaaS: Mercearia do Antonio
 
 window.firebaseConfig = {
-  apiKey: "AIzaSyBglv9QvSt_GzPgnCz2wMnXz06ZPWV1xh4",
-  authDomain: "mercearia-antonio.firebaseapp.com",
-  projectId: "mercearia-antonio",
-  storageBucket: "mercearia-antonio.firebasestorage.app",
-  messagingSenderId: "450965920692",
-  appId: "1:450965920692:web:2280235c7b6a4b340ff0e1",
-  measurementId: "G-6S9NHYBE15"
+  apiKey: "AIzaSyA-R6PbKw53ODnaNMjhusP5ovw3hA62nE0",
+  authDomain: "mercearia-antonio-62e60.firebaseapp.com",
+  projectId: "mercearia-antonio-62e60",
+  storageBucket: "mercearia-antonio-62e60.firebasestorage.app",
+  messagingSenderId: "692309702444",
+  appId: "1:692309702444:web:c4587eceff3e71a9095e89",
+  measurementId: "G-1J01PY9DT8"
 };
 
 firebase.initializeApp(window.firebaseConfig);
