@@ -80,7 +80,7 @@
         <!-- Header -->
         <header class="dashboard-header">
             <div class="header-left">
-                <button class="menu-toggle" onclick="toggleSidebar()">
+                <button> class="menu-toggle" onclick="toggleSidebar()">
                     <i class="fas fa-bars"></i>
                 </button>
                 <h1><i class="fas fa-shopping-basket"></i> Mercearia do Antonio</h1>
@@ -250,9 +250,14 @@
             <section id="section-estoque" class="content-section">
                 <div class="section-header">
                     <h2><i class="fas fa-boxes"></i> Controle de Estoque</h2>
-                    <button class="btn btn-primary" onclick="showModalProduto()">
-                        <i class="fas fa-plus"></i> Novo Produto
-                    </button>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="showModalProduto()">
+                            <i class="fas fa-plus"></i> Novo Produto
+                        </button>
+                        <button class="btn btn-secondary" onclick="openScanner()" title="Ler QR/Código de Barras">
+                            <i class="fas fa-qrcode"></i> Ler Código
+                        </button>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -411,6 +416,12 @@
                         <input type="text" id="produto-nome" class="form-control" required>
                     </div>
 
+                    <div class="form-group">
+                        <label>Código (EAN/QR)</label>
+                        <input type="text" id="produto-codigo" class="form-control" placeholder="Ex.: EAN-13">
+                        <small class="text-muted">Você pode preencher manualmente ou usar o botão "Ler Código" acima para escanear.</small>
+                    </div>
+
                     <div class="form-row">
                         <div class="form-group">
                             <label>Categoria *</label>
@@ -481,6 +492,22 @@
         </div>
     </div>
 
+    <!-- Modal Scanner -->
+    <div id="modal-scanner" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Leitor de QR/Código de Barras</h3>
+                <button class="modal-close" onclick="closeScanner()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <video id="scanner-video" style="width:100%; max-height:60vh; background:#000;" playsinline></video>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeScanner()">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast de Notificação -->
     <div id="toast" class="toast"></div>
 
@@ -490,6 +517,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <!-- jsPDF (para geração de PDF de relatórios) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- ZXing (QR/Barcode Scanner) -->
+    <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 
     <!-- Scripts -->
     <script src="js/firebase-config.js"></script>

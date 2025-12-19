@@ -36,6 +36,7 @@ function showModalProduto() {
   document.getElementById('modal-produto-title').textContent = 'Novo Produto';
   document.getElementById('produto-id').value = '';
   document.getElementById('produto-nome').value = '';
+  document.getElementById('produto-codigo').value = '';
   document.getElementById('produto-categoria').value = '';
   document.getElementById('produto-preco').value = '';
   document.getElementById('produto-quantidade').value = '';
@@ -47,6 +48,7 @@ function editarProduto(id, p) {
   document.getElementById('modal-produto-title').textContent = 'Editar Produto';
   document.getElementById('produto-id').value = id;
   document.getElementById('produto-nome').value = p.nome || '';
+  document.getElementById('produto-codigo').value = p.codigo || '';
   document.getElementById('produto-categoria').value = p.categoria || '';
   document.getElementById('produto-preco').value = p.preco || '';
   document.getElementById('produto-quantidade').value = p.quantidade || '';
@@ -59,6 +61,7 @@ async function salvarProduto(e) {
   const id = document.getElementById('produto-id').value;
   const dados = {
     nome: document.getElementById('produto-nome').value.trim(),
+    codigo: document.getElementById('produto-codigo').value.trim(),
     categoria: document.getElementById('produto-categoria').value,
     preco: Number(document.getElementById('produto-preco').value),
     quantidade: Number(document.getElementById('produto-quantidade').value),
@@ -113,3 +116,71 @@ window.carregarEstoque = carregarEstoque;
 window.showModalProduto = showModalProduto;
 window.editarProduto = editarProduto;
 window.excluirProduto = excluirProduto;
+
+// Scanner (QR/Código de Barras)
+let codeReader;
+
+async function openScanner() {
+  const modal = document.getElementById('modal-scanner');
+  modal.classList.add('active');
+  try {
+    if (!codeReader && window.ZXing && ZXing.BrowserMultiFormatReader) {
+      codeReader = new ZXing.BrowserMultiFormatReader();
+    }
+    if (!codeReader) {
+      showToast('error', 'Leitor indisponível. Verifique permissões da câmera.');
+      return;
+    }
+    const devices = await codeReader.listVideoInputDevices();
+    const deviceId = devices?.[0]?.deviceId;
+    await codeReader.decodeFromVideoDevice(deviceId || undefined, 'scanner-video', (result, err) => {
+      if (result && result.text) {
+        const codigo = result.text.trim();
+        document.getElementById('produto-codigo').value = codigo;
+        showToast('success', `Código detectado: ${codigo}`);
+        closeScanner();
+        autoPreencherPorCodigo(codigo);
+      }
+    });
+  } catch (err) {
+    console.error('Falha ao iniciar scanner', err);
+    showToast('error', 'Não foi possível iniciar a câmera.');
+  }
+}
+
+function closeScanner() {
+  try {
+    if (codeReader) codeReader.reset();
+  } catch (_) {}
+  document.getElementById('modal-scanner').classList.remove('active');
+}
+
+async function autoPreencherPorCodigo(codigo) {
+  if (!codigo) return;
+  try {
+    const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(codigo)}.json`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data && data.status === 1 && data.product) {
+      const produto = data.product;
+      const nome = produto.product_name || produto.generic_name || '';
+      const categoriasTxt = (produto.categories || '').toLowerCase();
+      let categoria = 'outros';
+      if (categoriasTxt.includes('bread') || categoriasTxt.includes('pão') || categoriasTxt.includes('bakery')) categoria = 'paes';
+      else if (categoriasTxt.includes('cake') || categoriasTxt.includes('bolo')) categoria = 'bolos';
+      else if (categoriasTxt.includes('candy') || categoriasTxt.includes('doce') || categoriasTxt.includes('confectionery')) categoria = 'doces';
+      else if (categoriasTxt.includes('beverage') || categoriasTxt.includes('bebida') || categoriasTxt.includes('drink')) categoria = 'bebidas';
+
+      if (nome) document.getElementById('produto-nome').value = nome;
+      document.getElementById('produto-categoria').value = categoria;
+      showToast('success', 'Produto pré-preenchido a partir do código. Confirme os dados.');
+    } else {
+      showToast('warning', 'Código válido, mas não encontramos informações. Preencha manualmente.');
+    }
+  } catch (err) {
+    console.error('Falha ao consultar OpenFoodFacts', err);
+  }
+}
+
+window.openScanner = openScanner;
+window.closeScanner = closeScanner;
