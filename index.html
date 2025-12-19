@@ -195,7 +195,12 @@
                     <div class="card">
                         <div class="card-header">
                             <h3>Selecionar Produtos</h3>
-                            <input type="text" id="search-produto" class="search-input" placeholder="Buscar produto...">
+                            <div class="card-actions" style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+                                <input type="text" id="search-produto" class="search-input" placeholder="Buscar produto...">
+                                <button class="btn btn-secondary" onclick="openScannerVenda()" title="Ler código para adicionar ao carrinho">
+                                    <i class="fas fa-barcode"></i> Ler Código
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div id="lista-produtos-venda" class="produtos-grid">

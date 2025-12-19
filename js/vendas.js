@@ -184,3 +184,79 @@ window.limparCarrinho = limparCarrinho;
 window.finalizarVenda = finalizarVenda;
 window.alterarQtd = alterarQtd;
 window.removerCarrinho = removerCarrinho;
+
+// Scanner para adicionar produtos por código
+let vendaCodeReader;
+
+async function openScannerVenda() {
+  const modal = document.getElementById('modal-scanner');
+  modal.classList.add('active');
+  try {
+    if (!vendaCodeReader && window.ZXing && ZXing.BrowserMultiFormatReader) {
+      // Hints para formatos comuns de código de barras e QR
+      const hints = new Map();
+      const formats = [
+        ZXing.BarcodeFormat.QR_CODE,
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A,
+        ZXing.BarcodeFormat.UPC_E,
+        ZXing.BarcodeFormat.CODE_128,
+        ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.ITF
+      ];
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+      vendaCodeReader = new ZXing.BrowserMultiFormatReader(hints);
+    }
+    if (!vendaCodeReader) {
+      showToast('error', 'Leitor indisponível. Verifique permissões da câmera.');
+      return;
+    }
+    const devices = await vendaCodeReader.listVideoInputDevices();
+    let deviceId;
+    const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
+    if (rearCamera) deviceId = rearCamera.deviceId; else deviceId = devices?.[0]?.deviceId;
+
+    await vendaCodeReader.decodeFromVideoDevice(
+      deviceId || undefined,
+      'scanner-video',
+      async (result, err) => {
+        if (result && result.text) {
+          const codigo = result.text.trim();
+          try { await adicionarPorCodigo(codigo); } catch (e) { console.error(e); }
+          if (window.closeScanner) window.closeScanner();
+        }
+      },
+      { facingMode: 'environment' }
+    );
+  } catch (err) {
+    console.error('Falha ao iniciar scanner de venda', err);
+    showToast('error', 'Não foi possível iniciar a câmera.');
+  }
+}
+
+async function adicionarPorCodigo(codigo) {
+  if (!codigo) return;
+  try {
+    // Buscar produto pelo campo 'codigo'
+    const qsnap = await window.db.collection('produtos').where('codigo', '==', codigo).limit(1).get();
+    if (qsnap.empty) {
+      showToast('warning', `Produto com código ${codigo} não encontrado no estoque.`);
+      return;
+    }
+    const doc = qsnap.docs[0];
+    const p = doc.data();
+    if (!p || (p.quantidade ?? 0) <= 0) {
+      showToast('warning', 'Produto sem estoque disponível.');
+      return;
+    }
+    adicionarAoCarrinho(doc.id, p);
+    showToast('success', `Adicionado: ${p.nome}`);
+  } catch (err) {
+    console.error('Falha ao adicionar por código', err);
+    showToast('error', 'Erro ao buscar produto por código.');
+  }
+}
+
+window.openScannerVenda = openScannerVenda;
