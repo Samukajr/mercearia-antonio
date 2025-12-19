@@ -191,6 +191,7 @@ let scannerVendaAtivo = false;
 let lastVendaCodigo = null;
 let lastVendaTimestamp = 0;
 let scannerSessionTotal = 0;
+let vendaDeviceId = null;
 
 function resetScannerStatusUI() {
   const elCode = document.getElementById('scanner-last-code');
@@ -217,11 +218,24 @@ function updateScannerStatusUI(code, name, qty, added) {
   if (elTotal) elTotal.textContent = String(scannerSessionTotal);
 }
 
+function setScannerState(text, color) {
+  const elState = document.getElementById('scanner-last-state');
+  const btnToggle = document.getElementById('scanner-toggle-btn');
+  if (elState) {
+    elState.textContent = text;
+    elState.style.color = color || '#888';
+  }
+  if (btnToggle) {
+    btnToggle.textContent = scannerVendaAtivo ? 'Pausar Leitura' : 'Continuar Leitura';
+  }
+}
+
 async function openScannerVenda() {
   const modal = document.getElementById('modal-scanner');
   modal.classList.add('active');
   scannerSessionTotal = 0;
   resetScannerStatusUI();
+  setScannerState('Lendo', '#2e7d32');
   try {
     if (!vendaCodeReader && window.ZXing && ZXing.BrowserMultiFormatReader) {
       // Hints para formatos comuns de código de barras e QR
@@ -245,37 +259,46 @@ async function openScannerVenda() {
       showToast('error', 'Leitor indisponível. Verifique permissões da câmera.');
       return;
     }
-    scannerVendaAtivo = true;
     const devices = await vendaCodeReader.listVideoInputDevices();
     let deviceId;
     const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
     if (rearCamera) deviceId = rearCamera.deviceId; else deviceId = devices?.[0]?.deviceId;
-
-    await vendaCodeReader.decodeFromVideoDevice(
-      deviceId || undefined,
-      'scanner-video',
-      async (result, err) => {
-        if (!scannerVendaAtivo) return;
-        if (result && result.text) {
-          const codigo = result.text.trim();
-          const now = Date.now();
-          // Evitar duplicatas em sequência (2s)
-          if (codigo === lastVendaCodigo && (now - lastVendaTimestamp) < 2000) {
-            return;
-          }
-          lastVendaCodigo = codigo;
-          lastVendaTimestamp = now;
-          try { await adicionarPorCodigo(codigo); } catch (e) { console.error(e); }
-          // Atualiza status com o código (produto/quantidade será setado dentro de adicionarPorCodigo)
-          updateScannerStatusUI(codigo, null, null, false);
-          // Permanece em modo contínuo até cancelar
-        }
-      },
-      { facingMode: 'environment' }
-    );
+    vendaDeviceId = deviceId || undefined;
+    scannerVendaAtivo = true;
+    startScannerVendaStream();
   } catch (err) {
     console.error('Falha ao iniciar scanner de venda', err);
     showToast('error', 'Não foi possível iniciar a câmera.');
+    setScannerState('Erro ao iniciar', '#c62828');
+  }
+}
+
+function onVendaScan(result, err) {
+  if (!scannerVendaAtivo) return;
+  if (result && result.text) {
+    const codigo = result.text.trim();
+    const now = Date.now();
+    if (codigo === lastVendaCodigo && (now - lastVendaTimestamp) < 2000) {
+      return;
+    }
+    lastVendaCodigo = codigo;
+    lastVendaTimestamp = now;
+    try { adicionarPorCodigo(codigo); } catch (e) { console.error(e); }
+    updateScannerStatusUI(codigo, null, null, false);
+  }
+}
+
+function startScannerVendaStream() {
+  try {
+    vendaCodeReader.decodeFromVideoDevice(
+      vendaDeviceId,
+      'scanner-video',
+      (result, err) => onVendaScan(result, err),
+      { facingMode: 'environment' }
+    );
+  } catch (e) {
+    console.error('Falha ao iniciar stream de leitura', e);
+    setScannerState('Erro ao ler', '#c62828');
   }
 }
 
@@ -287,6 +310,7 @@ async function adicionarPorCodigo(codigo) {
     if (qsnap.empty) {
       showToast('warning', `Produto com código ${codigo} não encontrado no estoque.`);
       updateScannerStatusUI(codigo, 'Não encontrado', null, false);
+      setScannerState('Não encontrado', '#f57c00');
       return;
     }
     const doc = qsnap.docs[0];
@@ -295,6 +319,7 @@ async function adicionarPorCodigo(codigo) {
     if (!p || disponivel <= 0) {
       showToast('warning', 'Produto sem estoque disponível.');
       updateScannerStatusUI(codigo, p?.nome || 'Sem estoque', null, false);
+      setScannerState('Sem estoque', '#f57c00');
       return;
     }
     // Tentar usar quantidade padrão sem prompt
@@ -306,6 +331,7 @@ async function adicionarPorCodigo(codigo) {
       if (qtdStr === null) {
         showToast('info', 'Operação cancelada.');
         updateScannerStatusUI(codigo, p.nome, null, false);
+        setScannerState('Cancelado', '#5f6368');
         return;
       }
       qtd = parseInt(qtdStr, 10);
@@ -313,6 +339,7 @@ async function adicionarPorCodigo(codigo) {
     if (Number.isNaN(qtd) || qtd <= 0) {
       showToast('warning', 'Quantidade inválida.');
       updateScannerStatusUI(codigo, p.nome, null, false);
+      setScannerState('Qtd inválida', '#f57c00');
       return;
     }
     if (qtd > disponivel) {
@@ -322,10 +349,12 @@ async function adicionarPorCodigo(codigo) {
     adicionarAoCarrinhoComQtd(doc.id, p, qtd);
     showToast('success', `Adicionado: ${p.nome} x${qtd}`);
     updateScannerStatusUI(codigo, p.nome, qtd, true);
+    setScannerState('Adicionado', '#2e7d32');
   } catch (err) {
     console.error('Falha ao adicionar por código', err);
     showToast('error', 'Erro ao buscar produto por código.');
     updateScannerStatusUI(codigo, 'Erro ao buscar', null, false);
+    setScannerState('Erro', '#c62828');
   }
 }
 
@@ -338,7 +367,26 @@ function closeScannerVenda() {
   } catch (_) {}
   if (window.closeScanner) window.closeScanner();
   scannerSessionTotal = 0;
+  setScannerState('Aguardando', '#888');
 }
+
+function toggleScannerVenda() {
+  try {
+    scannerVendaAtivo = !scannerVendaAtivo;
+    if (scannerVendaAtivo) {
+      setScannerState('Lendo', '#2e7d32');
+      startScannerVendaStream();
+    } else {
+      if (vendaCodeReader) vendaCodeReader.reset();
+      setScannerState('Pausado', '#5f6368');
+    }
+  } catch (e) {
+    console.error('Falha ao alternar leitura', e);
+    setScannerState('Erro', '#c62828');
+  }
+}
+
+window.toggleScannerVenda = toggleScannerVenda;
 window.closeScannerVenda = closeScannerVenda;
 
 function adicionarAoCarrinhoComQtd(id, p, qtd) {
