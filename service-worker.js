@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mercearia-v3';
+const CACHE_NAME = 'mercearia-v4';
 const ASSETS = [
   'index.html',
   'css/styles.css',
