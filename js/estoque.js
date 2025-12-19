@@ -18,6 +18,8 @@ function carregarEstoque() {
         <td class="action-buttons">
           <button class="btn-icon-table edit" title="Editar" onclick="editarProduto('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})"><i class="fas fa-edit"></i></button>
           <button class="btn-icon-table delete" title="Excluir" onclick="excluirProduto('${doc.id}')"><i class="fas fa-trash"></i></button>
+          <button class="btn-icon-table" title="Ver QR" onclick="verQrProduto('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})"><i class="fas fa-qrcode"></i></button>
+          <button class="btn-icon-table" title="Imprimir etiqueta" onclick="imprimirEtiqueta('${doc.id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})"><i class="fas fa-print"></i></button>
         </td>`;
       tbody.appendChild(tr);
     });
@@ -188,7 +190,19 @@ async function autoPreencherPorCodigo(codigo) {
       document.getElementById('produto-categoria').value = categoria;
       showToast('success', 'Produto pré-preenchido a partir do código. Confirme os dados.');
     } else {
-      showToast('warning', 'Código válido, mas não encontramos informações. Preencha manualmente.');
+      // Fallback: tentar buscar na própria base pelo campo 'codigo'
+      const qsnap = await window.db.collection('produtos').where('codigo', '==', codigo).limit(1).get();
+      if (!qsnap.empty) {
+        const prod = qsnap.docs[0].data();
+        document.getElementById('produto-nome').value = prod.nome || '';
+        document.getElementById('produto-categoria').value = prod.categoria || 'outros';
+        document.getElementById('produto-preco').value = prod.preco ?? '';
+        document.getElementById('produto-quantidade').value = prod.quantidade ?? '';
+        document.getElementById('produto-estoque-min').value = prod.estoqueMin ?? '';
+        showToast('success', 'Produto encontrado na base pelo código. Confirme/edite os dados.');
+      } else {
+        showToast('warning', 'Código válido, mas não encontramos informações externas. Preencha manualmente.');
+      }
     }
   } catch (err) {
     console.error('Falha ao consultar OpenFoodFacts', err);
@@ -238,3 +252,74 @@ function closeQrModal() {
 window.gerarCodigoInterno = gerarCodigoInterno;
 window.openQrModal = openQrModal;
 window.closeQrModal = closeQrModal;
+
+function verQrProduto(id, p) {
+  const codigo = (p && p.codigo) ? p.codigo : id;
+  const modal = document.getElementById('modal-qr');
+  modal.classList.add('active');
+  const container = document.getElementById('qr-container');
+  container.innerHTML = '';
+  try {
+    new QRCode(container, {
+      text: codigo,
+      width: 256,
+      height: 256,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (err) {
+    console.error('Falha ao gerar QR', err);
+  }
+}
+
+async function imprimirEtiqueta(id, p) {
+  const codigo = (p && p.codigo) ? p.codigo : id;
+  try {
+    const { jsPDF } = window.jspdf || {};
+    if (!jsPDF) {
+      showToast('error', 'Gerador de PDF indisponível.');
+      return;
+    }
+    // Tamanho de etiqueta 50x30mm
+    const doc = new jsPDF({ unit: 'mm', format: [50, 30] });
+    // Gerar QR temporário e obter data URL
+    const temp = document.createElement('div');
+    const qr = new QRCode(temp, {
+      text: codigo,
+      width: 128,
+      height: 128,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    // A lib insere um <img> dentro do container
+    const img = temp.querySelector('img');
+    let dataUrl;
+    if (img && img.src) {
+      dataUrl = img.src;
+    } else {
+      // Fallback: canvas
+      const canvas = temp.querySelector('canvas');
+      dataUrl = canvas ? canvas.toDataURL('image/png') : null;
+    }
+    if (dataUrl) {
+      doc.addImage(dataUrl, 'PNG', 2, 2, 26, 26); // QR à esquerda
+    }
+    // Texto à direita
+    doc.setFontSize(10);
+    doc.text((p.nome || 'Produto'), 30, 8, { maxWidth: 18 });
+    doc.setFontSize(9);
+    doc.text(`Preço: ${formatCurrency(p.preco || 0)}`, 30, 14);
+    doc.setFontSize(8);
+    doc.text(`Cod: ${codigo}`, 30, 20, { maxWidth: 18 });
+    doc.text('Mercearia do Antonio', 30, 26);
+    doc.save(`etiqueta-${(p.nome || 'produto')}.pdf`);
+  } catch (err) {
+    console.error('Falha ao gerar etiqueta', err);
+    showToast('error', 'Não foi possível gerar a etiqueta.');
+  }
+}
+
+window.verQrProduto = verQrProduto;
+window.imprimirEtiqueta = imprimirEtiqueta;
