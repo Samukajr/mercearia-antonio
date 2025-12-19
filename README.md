@@ -67,6 +67,38 @@ window.firebaseConfig = {
 ### 3. Publicar Regras
 Copie o conteúdo de `firestore.rules` para o Firebase Console
 
+### 4. Criar Índices Compostos
+O Firestore requer índices compostos para queries com filtros + ordenação. Existem três formas de criá-los:
+
+**Opção A: Firebase CLI (Recomendado)**
+```powershell
+# Instalar Firebase CLI se necessário
+npm install -g firebase-tools
+
+# Login
+firebase login
+
+# Inicializar projeto (se ainda não fez)
+firebase init firestore
+
+# Deploy dos índices
+firebase deploy --only firestore:indexes
+```
+
+**Opção B: Links Diretos do Console**
+Clique nos links dos erros que aparecem no console do navegador, ou acesse manualmente:
+- Console Firebase → Firestore → Índices → "Criar índice"
+- Índice 1: Collection `produtos`, campos `userId` (ASC) + `nome` (ASC)
+- Índice 2: Collection `auditLogs`, campos `userId` (ASC) + `timestamp` (DESC)
+
+**Opção C: Arquivo firestore.indexes.json**
+O arquivo `firestore.indexes.json` já está configurado. Use o Firebase CLI para deploy:
+```powershell
+firebase deploy --only firestore:indexes
+```
+
+> **Nota:** Os índices levam alguns minutos para serem criados. Aguarde a mensagem "Index ready" no Console.
+
 ## 🌐 Deploy (Netlify)
 
 ### Método 1: Drag & Drop
@@ -133,9 +165,10 @@ git commit -m "Initial commit"
 ### Passos de Conformidade
 1. Abra `politica-privacidade.html` e `termos-uso.html` para revisão.
 2. Ajuste emails de contato (DPO) nesses arquivos, se necessário.
-3. Publique regras: copie `firestore.rules` no Firebase Console.
-4. Garanta região `southamerica-east1` (São Paulo) no Firestore.
-5. Teste login → aceite LGPD → uso do sistema.
+3. **Publique regras:** Copie `firestore.rules` no Firebase Console.
+4. **Crie os índices:** Execute `firebase deploy --only firestore:indexes` ou use os links de erro no console do navegador.
+5. Garanta região `southamerica-east1` (São Paulo) no Firestore.
+6. Teste login → aceite LGPD → uso do sistema.
 
 ### Observações
 - Se você já tinha dados antigos sem `userId`, as regras permitem atualização com definição de `userId` na primeira alteração.
