@@ -1,3 +1,27 @@
+/* Scanner status panel styles */
+.scanner-status {
+    margin-top: .5rem;
+    padding: .5rem .75rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+.scanner-status strong {
+    font-weight: 600;
+}
+.scanner-status .state-ok { color: #2e7d32; }
+.scanner-status .state-warn { color: #f57c00; }
+.scanner-status .state-error { color: #c62828; }
+.scanner-status .state-paused { color: #5f6368; }
+.scanner-status .state-waiting { color: #888; }
+
+/* Scanner modal footer buttons */
+#scanner-toggle-btn {
+    background: #e5e7eb;
+    color: #111827;
+}
+#scanner-toggle-btn:hover { background: #d1d5db; }
 /* ========================================
    MERCEARIA DO ANTONIO - Estilos Globais
    ======================================== */

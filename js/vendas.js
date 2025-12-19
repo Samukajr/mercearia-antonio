@@ -218,16 +218,37 @@ function updateScannerStatusUI(code, name, qty, added) {
   if (elTotal) elTotal.textContent = String(scannerSessionTotal);
 }
 
-function setScannerState(text, color) {
+function setScannerState(text, stateClass) {
   const elState = document.getElementById('scanner-last-state');
   const btnToggle = document.getElementById('scanner-toggle-btn');
   if (elState) {
     elState.textContent = text;
-    elState.style.color = color || '#888';
+    elState.classList.remove('state-ok','state-warn','state-error','state-paused','state-waiting');
+    if (stateClass) elState.classList.add(`state-${stateClass}`);
   }
   if (btnToggle) {
     btnToggle.textContent = scannerVendaAtivo ? 'Pausar Leitura' : 'Continuar Leitura';
   }
+}
+
+// Feedback tátil/sonoro ao adicionar
+function playScanFeedback(success) {
+  try {
+    if (navigator.vibrate) {
+      navigator.vibrate(success ? [10, 30, 10] : [60]);
+    }
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(success ? 880 : 440, ctx.currentTime);
+    g.gain.setValueAtTime(0.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    o.connect(g).connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.18);
+  } catch (_) { /* ignora falhas de áudio */ }
 }
 
 async function openScannerVenda() {
@@ -235,7 +256,7 @@ async function openScannerVenda() {
   modal.classList.add('active');
   scannerSessionTotal = 0;
   resetScannerStatusUI();
-  setScannerState('Lendo', '#2e7d32');
+  setScannerState('Lendo', 'ok');
   try {
     if (!vendaCodeReader && window.ZXing && ZXing.BrowserMultiFormatReader) {
       // Hints para formatos comuns de código de barras e QR
@@ -269,7 +290,7 @@ async function openScannerVenda() {
   } catch (err) {
     console.error('Falha ao iniciar scanner de venda', err);
     showToast('error', 'Não foi possível iniciar a câmera.');
-    setScannerState('Erro ao iniciar', '#c62828');
+    setScannerState('Erro ao iniciar', 'error');
   }
 }
 
@@ -310,7 +331,7 @@ async function adicionarPorCodigo(codigo) {
     if (qsnap.empty) {
       showToast('warning', `Produto com código ${codigo} não encontrado no estoque.`);
       updateScannerStatusUI(codigo, 'Não encontrado', null, false);
-      setScannerState('Não encontrado', '#f57c00');
+      setScannerState('Não encontrado', 'warn');
       return;
     }
     const doc = qsnap.docs[0];
@@ -319,7 +340,7 @@ async function adicionarPorCodigo(codigo) {
     if (!p || disponivel <= 0) {
       showToast('warning', 'Produto sem estoque disponível.');
       updateScannerStatusUI(codigo, p?.nome || 'Sem estoque', null, false);
-      setScannerState('Sem estoque', '#f57c00');
+      setScannerState('Sem estoque', 'warn');
       return;
     }
     // Tentar usar quantidade padrão sem prompt
@@ -331,7 +352,7 @@ async function adicionarPorCodigo(codigo) {
       if (qtdStr === null) {
         showToast('info', 'Operação cancelada.');
         updateScannerStatusUI(codigo, p.nome, null, false);
-        setScannerState('Cancelado', '#5f6368');
+        setScannerState('Cancelado', 'paused');
         return;
       }
       qtd = parseInt(qtdStr, 10);
@@ -339,7 +360,7 @@ async function adicionarPorCodigo(codigo) {
     if (Number.isNaN(qtd) || qtd <= 0) {
       showToast('warning', 'Quantidade inválida.');
       updateScannerStatusUI(codigo, p.nome, null, false);
-      setScannerState('Qtd inválida', '#f57c00');
+      setScannerState('Qtd inválida', 'warn');
       return;
     }
     if (qtd > disponivel) {
@@ -349,12 +370,14 @@ async function adicionarPorCodigo(codigo) {
     adicionarAoCarrinhoComQtd(doc.id, p, qtd);
     showToast('success', `Adicionado: ${p.nome} x${qtd}`);
     updateScannerStatusUI(codigo, p.nome, qtd, true);
-    setScannerState('Adicionado', '#2e7d32');
+    setScannerState('Adicionado', 'ok');
+    playScanFeedback(true);
   } catch (err) {
     console.error('Falha ao adicionar por código', err);
     showToast('error', 'Erro ao buscar produto por código.');
     updateScannerStatusUI(codigo, 'Erro ao buscar', null, false);
-    setScannerState('Erro', '#c62828');
+    setScannerState('Erro', 'error');
+    playScanFeedback(false);
   }
 }
 
@@ -367,18 +390,18 @@ function closeScannerVenda() {
   } catch (_) {}
   if (window.closeScanner) window.closeScanner();
   scannerSessionTotal = 0;
-  setScannerState('Aguardando', '#888');
+  setScannerState('Aguardando', 'waiting');
 }
 
 function toggleScannerVenda() {
   try {
     scannerVendaAtivo = !scannerVendaAtivo;
     if (scannerVendaAtivo) {
-      setScannerState('Lendo', '#2e7d32');
+      setScannerState('Lendo', 'ok');
       startScannerVendaStream();
     } else {
       if (vendaCodeReader) vendaCodeReader.reset();
-      setScannerState('Pausado', '#5f6368');
+      setScannerState('Pausado', 'paused');
     }
   } catch (e) {
     console.error('Falha ao alternar leitura', e);
