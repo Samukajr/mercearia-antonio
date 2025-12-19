@@ -515,6 +515,15 @@
             </div>
             <div class="modal-body">
                 <video id="scanner-video" style="width:100%; max-height:60vh; background:#000;" playsinline></video>
+                <!-- Painel de Status da Leitura -->
+                <div id="scanner-status" class="scanner-status" style="margin-top:.5rem; padding:.5rem; background:#f6f6f6; border:1px solid #ddd; border-radius:6px;">
+                    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                        <div>Último código: <strong id="scanner-last-code">—</strong></div>
+                        <div>Produto: <strong id="scanner-last-name">—</strong></div>
+                        <div>Qtd adicionada: <strong id="scanner-last-qty">—</strong></div>
+                        <div>Total sessão: <strong id="scanner-session-total">0</strong></div>
+                    </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeScanner()">Cancelar</button>
                 </div>

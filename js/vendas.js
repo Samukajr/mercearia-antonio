@@ -190,10 +190,38 @@ let vendaCodeReader;
 let scannerVendaAtivo = false;
 let lastVendaCodigo = null;
 let lastVendaTimestamp = 0;
+let scannerSessionTotal = 0;
+
+function resetScannerStatusUI() {
+  const elCode = document.getElementById('scanner-last-code');
+  const elName = document.getElementById('scanner-last-name');
+  const elQty = document.getElementById('scanner-last-qty');
+  const elTotal = document.getElementById('scanner-session-total');
+  if (elCode) elCode.textContent = '—';
+  if (elName) elName.textContent = '—';
+  if (elQty) elQty.textContent = '—';
+  if (elTotal) elTotal.textContent = '0';
+}
+
+function updateScannerStatusUI(code, name, qty, added) {
+  const elCode = document.getElementById('scanner-last-code');
+  const elName = document.getElementById('scanner-last-name');
+  const elQty = document.getElementById('scanner-last-qty');
+  const elTotal = document.getElementById('scanner-session-total');
+  if (elCode) elCode.textContent = code || '—';
+  if (elName) elName.textContent = name || '—';
+  if (elQty) elQty.textContent = (typeof qty === 'number' ? qty : '—');
+  if (added && typeof qty === 'number') {
+    scannerSessionTotal += qty;
+  }
+  if (elTotal) elTotal.textContent = String(scannerSessionTotal);
+}
 
 async function openScannerVenda() {
   const modal = document.getElementById('modal-scanner');
   modal.classList.add('active');
+  scannerSessionTotal = 0;
+  resetScannerStatusUI();
   try {
     if (!vendaCodeReader && window.ZXing && ZXing.BrowserMultiFormatReader) {
       // Hints para formatos comuns de código de barras e QR
@@ -238,6 +266,8 @@ async function openScannerVenda() {
           lastVendaCodigo = codigo;
           lastVendaTimestamp = now;
           try { await adicionarPorCodigo(codigo); } catch (e) { console.error(e); }
+          // Atualiza status com o código (produto/quantidade será setado dentro de adicionarPorCodigo)
+          updateScannerStatusUI(codigo, null, null, false);
           // Permanece em modo contínuo até cancelar
         }
       },
@@ -256,6 +286,7 @@ async function adicionarPorCodigo(codigo) {
     const qsnap = await window.db.collection('produtos').where('codigo', '==', codigo).limit(1).get();
     if (qsnap.empty) {
       showToast('warning', `Produto com código ${codigo} não encontrado no estoque.`);
+      updateScannerStatusUI(codigo, 'Não encontrado', null, false);
       return;
     }
     const doc = qsnap.docs[0];
@@ -263,6 +294,7 @@ async function adicionarPorCodigo(codigo) {
     const disponivel = Number(p.quantidade ?? 0);
     if (!p || disponivel <= 0) {
       showToast('warning', 'Produto sem estoque disponível.');
+      updateScannerStatusUI(codigo, p?.nome || 'Sem estoque', null, false);
       return;
     }
     // Tentar usar quantidade padrão sem prompt
@@ -273,12 +305,14 @@ async function adicionarPorCodigo(codigo) {
       const qtdStr = prompt(`Quantidade para "${p.nome}" (estoque: ${disponivel})`, '1');
       if (qtdStr === null) {
         showToast('info', 'Operação cancelada.');
+        updateScannerStatusUI(codigo, p.nome, null, false);
         return;
       }
       qtd = parseInt(qtdStr, 10);
     }
     if (Number.isNaN(qtd) || qtd <= 0) {
       showToast('warning', 'Quantidade inválida.');
+      updateScannerStatusUI(codigo, p.nome, null, false);
       return;
     }
     if (qtd > disponivel) {
@@ -287,9 +321,11 @@ async function adicionarPorCodigo(codigo) {
     }
     adicionarAoCarrinhoComQtd(doc.id, p, qtd);
     showToast('success', `Adicionado: ${p.nome} x${qtd}`);
+    updateScannerStatusUI(codigo, p.nome, qtd, true);
   } catch (err) {
     console.error('Falha ao adicionar por código', err);
     showToast('error', 'Erro ao buscar produto por código.');
+    updateScannerStatusUI(codigo, 'Erro ao buscar', null, false);
   }
 }
 
@@ -301,6 +337,7 @@ function closeScannerVenda() {
     if (vendaCodeReader) vendaCodeReader.reset();
   } catch (_) {}
   if (window.closeScanner) window.closeScanner();
+  scannerSessionTotal = 0;
 }
 window.closeScannerVenda = closeScannerVenda;
 
