@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade - Mercearia do Antonio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .legal-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .legal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        .legal-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        .legal-section {
+            margin-bottom: 2rem;
+        }
+        .legal-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        .legal-section h3 {
+            color: var(--dark-text);
+            margin: 1rem 0 0.5rem;
+            font-size: 1.2rem;
+        }
+        .legal-section p, .legal-section li {
+            color: var(--gray-text);
+            line-height: 1.8;
+            margin-bottom: 0.5rem;
+        }
+        .legal-section ul {
+            margin-left: 1.5rem;
+        }
+        .highlight-box {
+            background: #f0f7f0;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: var(--primary-dark);
+        }
+        .contact-info {
+            background: #fff9e6;
+            border: 1px solid #ffd700;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+        @media (max-width: 768px) {
+            .legal-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="legal-container">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Voltar ao Sistema</a>
+        
+        <div class="legal-header">
+            <h1><i class="fas fa-shield-alt"></i> Política de Privacidade</h1>
+            <p><strong>Última atualização:</strong> 19 de dezembro de 2025</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>1. Introdução</h2>
+            <p>A <strong>Mercearia do Antonio</strong> ("nós", "nosso" ou "Controlador") está comprometida em proteger a privacidade e os dados pessoais de seus usuários ("você", "Titular"), em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).</p>
+            <p>Esta Política de Privacidade descreve como coletamos, usamos, armazenamos, compartilhamos e protegemos suas informações pessoais ao utilizar nosso sistema de gestão de vendas e estoque (PDV).</p>
+            
+            <div class="highlight-box">
+                <strong><i class="fas fa-info-circle"></i> Importante:</strong> Ao utilizar nosso sistema, você declara ter lido, compreendido e concordado com os termos desta Política de Privacidade e com nossos Termos de Uso.
+            </div>
+        </div>
+
+        <div class="legal-section">
+            <h2>2. Dados Pessoais Coletados</h2>
+            <h3>2.1. Dados de Cadastro</h3>
+            <ul>
+                <li><strong>Email:</strong> Utilizado para autenticação e comunicação com o usuário.</li>
+                <li><strong>Senha:</strong> Armazenada de forma criptografada pelo Firebase Authentication.</li>
+                <li><strong>Data e hora de cadastro:</strong> Para controle de criação de conta.</li>
+            </ul>
+
+            <h3>2.2. Dados de Uso do Sistema</h3>
+            <ul>
+                <li><strong>Logs de acesso:</strong> Endereço IP, data/hora de login, ações realizadas no sistema.</li>
+                <li><strong>Dados de produtos:</strong> Nome, código, categoria, preço, quantidade em estoque.</li>
+                <li><strong>Dados de vendas:</strong> Itens vendidos, valores, formas de pagamento, data/hora das transações.</li>
+                <li><strong>Movimentações de caixa:</strong> Entradas, saídas, descrições e valores.</li>
+            </ul>
+
+            <h3>2.3. Dados Técnicos</h3>
+            <ul>
+                <li><strong>Cookies e cache:</strong> Utilizados para manter sessão ativa e melhorar a experiência (PWA).</li>
+                <li><strong>Informações do dispositivo:</strong> Navegador, sistema operacional, resolução de tela (coletados automaticamente pelo Firebase).</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong><i class="fas fa-exclamation-triangle"></i> Dados Sensíveis:</strong> NÃO coletamos dados sensíveis como CPF, RG, dados bancários ou informações de saúde dos clientes finais. Caso você registre vendas com identificação de clientes, é sua responsabilidade obter consentimento adequado.
+            </div>
+        </div>
+
+        <div class="legal-section">
+            <h2>3. Finalidade do Tratamento de Dados</h2>
+            <p>Utilizamos seus dados pessoais para as seguintes finalidades:</p>
+            <ul>
+                <li><strong>Autenticação e controle de acesso:</strong> Garantir que apenas usuários autorizados acessem o sistema.</li>
+                <li><strong>Execução do serviço:</strong> Permitir o registro de vendas, controle de estoque, fluxo de caixa e geração de relatórios.</li>
+                <li><strong>Melhoria do sistema:</strong> Análise de uso para aprimorar funcionalidades e experiência do usuário.</li>
+                <li><strong>Conformidade legal:</strong> Cumprir obrigações fiscais e regulatórias (ex: manutenção de registros contábeis).</li>
+                <li><strong>Segurança:</strong> Detectar, prevenir e investigar fraudes, abusos e violações de segurança.</li>
+                <li><strong>Suporte técnico:</strong> Responder a solicitações de ajuda e resolver problemas técnicos.</li>
+            </ul>
+        </div>
+
+        <div class="legal-section">
+            <h2>4. Base Legal para o Tratamento</h2>
+            <p>O tratamento de seus dados pessoais está fundamentado nas seguintes bases legais da LGPD (Art. 7º):</p>
+            <ul>
+                <li><strong>Consentimento (Art. 7º, I):</strong> Você consente expressamente ao aceitar esta Política no primeiro acesso.</li>
+                <li><strong>Execução de contrato (Art. 7º, V):</strong> Necessário para fornecer o serviço de gestão de vendas contratado.</li>
+                <li><strong>Obrigação legal (Art. 7º, II):</strong> Cumprimento de obrigações fiscais e contábeis.</li>
+                <li><strong>Interesses legítimos (Art. 7º, IX):</strong> Segurança do sistema e prevenção de fraudes.</li>
+            </ul>
+        </div>
+
+        <div class="legal-section">
+            <h2>5. Compartilhamento de Dados</h2>
+            <h3>5.1. Com Quem Compartilhamos</h3>
+            <ul>
+                <li><strong>Firebase/Google Cloud:</strong> Nosso provedor de infraestrutura (autenticação, banco de dados, hosting). Google possui certificações de segurança e conformidade com LGPD.</li>
+                <li><strong>Autoridades governamentais:</strong> Mediante ordem judicial ou requisição de autoridades competentes.</li>
+            </ul>
+
+            <h3>5.2. Não Compartilhamos Com</h3>
+            <p><strong>NÃO vendemos, alugamos ou compartilhamos</strong> seus dados pessoais com terceiros para fins de marketing, propaganda ou qualquer outra finalidade não prevista nesta Política.</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>6. Armazenamento e Segurança</h2>
+            <h3>6.1. Localização dos Dados</h3>
+            <p>Seus dados são armazenados em servidores do Firebase/Google Cloud, localizados na região <strong>southamerica-east1 (São Paulo, Brasil)</strong>, garantindo conformidade com requisitos de residência de dados.</p>
+
+            <h3>6.2. Medidas de Segurança</h3>
+            <ul>
+                <li><strong>Criptografia em trânsito:</strong> Todas as comunicações usam HTTPS/TLS.</li>
+                <li><strong>Criptografia em repouso:</strong> Dados armazenados no Firestore são criptografados automaticamente.</li>
+                <li><strong>Autenticação segura:</strong> Firebase Authentication com hash bcrypt para senhas.</li>
+                <li><strong>Regras de acesso:</strong> Firestore Security Rules garantem que cada usuário acessa apenas seus próprios dados.</li>
+                <li><strong>Logs de auditoria:</strong> Registro de todas as ações críticas para rastreabilidade.</li>
+                <li><strong>Backup automatizado:</strong> Firebase realiza backups contínuos com redundância.</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong><i class="fas fa-lock"></i> Compromisso:</strong> Adotamos práticas de segurança reconhecidas internacionalmente. No entanto, nenhum sistema é 100% seguro. Notificaremos imediatamente em caso de incidente de segurança conforme Art. 48 da LGPD.
+            </div>
+        </div>
+
+        <div class="legal-section">
+            <h2>7. Retenção de Dados</h2>
+            <h3>7.1. Prazos</h3>
+            <ul>
+                <li><strong>Dados de vendas e movimentações:</strong> Mantidos por <strong>5 anos</strong> (obrigação fiscal conforme legislação brasileira).</li>
+                <li><strong>Dados de cadastro:</strong> Mantidos enquanto a conta estiver ativa.</li>
+                <li><strong>Logs de auditoria:</strong> Mantidos por <strong>2 anos</strong> para fins de segurança.</li>
+                <li><strong>Contas inativas:</strong> Dados de usuários sem login por <strong>2 anos consecutivos</strong> serão anonimizados ou excluídos.</li>
+            </ul>
+
+            <h3>7.2. Exclusão Após o Prazo</h3>
+            <p>Após os prazos acima, seus dados serão permanentemente excluídos ou anonimizados, salvo se houver obrigação legal de retenção.</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>8. Seus Direitos como Titular (Arts. 17-22 LGPD)</h2>
+            <p>Você possui os seguintes direitos em relação aos seus dados pessoais:</p>
+            <ul>
+                <li><strong>Confirmação e acesso:</strong> Saber se tratamos seus dados e ter acesso a eles.</li>
+                <li><strong>Correção:</strong> Solicitar correção de dados incompletos, inexatos ou desatualizados.</li>
+                <li><strong>Anonimização, bloqueio ou eliminação:</strong> Requerer a exclusão de dados desnecessários ou tratados em desconformidade.</li>
+                <li><strong>Portabilidade:</strong> Receber seus dados em formato estruturado e interoperável (JSON/CSV).</li>
+                <li><strong>Revogação do consentimento:</strong> Retirar seu consentimento a qualquer momento.</li>
+                <li><strong>Oposição ao tratamento:</strong> Opor-se ao tratamento realizado com base em interesses legítimos.</li>
+                <li><strong>Revisão de decisões automatizadas:</strong> Solicitar revisão de decisões tomadas unicamente com base em tratamento automatizado.</li>
+            </ul>
+
+            <h3>8.1. Como Exercer Seus Direitos</h3>
+            <div class="contact-info">
+                <strong><i class="fas fa-user-shield"></i> Encarregado de Dados (DPO):</strong><br>
+                Email: <a href="mailto:privacidade@mercearia-antonio.com.br">privacidade@mercearia-antonio.com.br</a><br>
+                Prazo de resposta: Até <strong>15 dias úteis</strong> conforme Art. 19, §3º da LGPD.
+            </div>
+            <p>Você também pode exercer seus direitos diretamente pelo sistema, acessando: <strong>Painel → Configurações → Privacidade e Dados</strong>.</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>9. Cookies e Tecnologias Similares</h2>
+            <p>Utilizamos as seguintes tecnologias:</p>
+            <ul>
+                <li><strong>Cookies de sessão:</strong> Mantêm você autenticado durante o uso (Firebase Authentication).</li>
+                <li><strong>LocalStorage:</strong> Armazena preferências do usuário (ex: tema, idioma, configurações).</li>
+                <li><strong>Service Worker:</strong> Cache offline (PWA) para funcionalidade sem internet.</li>
+            </ul>
+            <p><strong>Gerenciamento:</strong> Você pode limpar cookies e cache a qualquer momento nas configurações do navegador. Isso pode afetar a funcionalidade do sistema.</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>10. Transferência Internacional de Dados</h2>
+            <p>O Firebase/Google Cloud pode realizar transferências internacionais de dados dentro da infraestrutura Google, sempre em conformidade com:</p>
+            <ul>
+                <li><strong>Cláusulas contratuais padrão:</strong> Aprovadas pela Comissão Europeia.</li>
+                <li><strong>Adequação de segurança:</strong> Nível equivalente ao exigido pela LGPD (Art. 33).</li>
+            </ul>
+            <p>Dados sensíveis do negócio permanecem no Brasil (região southamerica-east1).</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>11. Menores de Idade</h2>
+            <p>Nosso sistema é destinado a <strong>maiores de 18 anos</strong>. Não coletamos intencionalmente dados de menores de idade. Caso identifiquemos dados de menores, eles serão imediatamente excluídos.</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>12. Alterações na Política</h2>
+            <p>Esta Política de Privacidade pode ser atualizada periodicamente. Notificaremos sobre mudanças significativas por:</p>
+            <ul>
+                <li>Email cadastrado;</li>
+                <li>Aviso no sistema ao fazer login;</li>
+                <li>Atualização da data no topo desta página.</li>
+            </ul>
+            <p>O uso continuado do sistema após alterações constitui aceitação da nova Política.</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>13. Autoridade Nacional de Proteção de Dados (ANPD)</h2>
+            <p>Em caso de não resolução de questões relacionadas aos seus dados pessoais, você pode contatar a ANPD:</p>
+            <div class="contact-info">
+                <strong><i class="fas fa-landmark"></i> ANPD - Autoridade Nacional de Proteção de Dados:</strong><br>
+                Website: <a href="https://www.gov.br/anpd" target="_blank">www.gov.br/anpd</a><br>
+                Email: <a href="mailto:anpd@anpd.gov.br">anpd@anpd.gov.br</a>
+            </div>
+        </div>
+
+        <div class="legal-section">
+            <h2>14. Legislação e Foro</h2>
+            <p>Esta Política é regida pela legislação brasileira, em especial:</p>
+            <ul>
+                <li>Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018)</li>
+                <li>Marco Civil da Internet (Lei nº 12.965/2014)</li>
+                <li>Código de Defesa do Consumidor (Lei nº 8.078/1990)</li>
+            </ul>
+            <p><strong>Foro:</strong> Fica eleito o foro da comarca do domicílio do Titular para dirimir quaisquer questões relacionadas a esta Política.</p>
+        </div>
+
+        <div class="legal-section">
+            <h2>15. Contato</h2>
+            <div class="contact-info">
+                <strong><i class="fas fa-envelope"></i> Controlador de Dados:</strong><br>
+                Mercearia do Antonio<br>
+                Email: <a href="mailto:privacidade@mercearia-antonio.com.br">privacidade@mercearia-antonio.com.br</a><br>
+                Email do Encarregado (DPO): <a href="mailto:dpo@mercearia-antonio.com.br">dpo@mercearia-antonio.com.br</a>
+            </div>
+            <p style="margin-top: 1rem;">Para dúvidas, solicitações ou exercício de direitos, entre em contato conosco. Responderemos em até 15 dias úteis.</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd;">
+            <p style="color: var(--gray-text); font-size: 0.9rem;">
+                <strong>Mercearia do Antonio</strong> | Sistema de Gestão PDV<br>
+                © 2025 Todos os direitos reservados | <a href="termos-uso.html">Termos de Uso</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

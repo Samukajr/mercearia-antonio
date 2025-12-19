@@ -101,7 +101,8 @@ window.exportarMovimentacoesCSV = exportarMovimentacoesCSV;
 async function exportarProdutosCSV() {
   try {
     const snap = await window.db.collection('produtos').orderBy('nome').get();
-    const linhas = ['nome,categoria,preco,quantidade,estoqueMin'];
+      const linhas = ['nome,categoria,preco,quantidade,estoqueMin'];
+      const produtosSnap = await queryByUser(window.db.collection('produtos')).get();
     snap.forEach((d) => {
       const p = d.data();
       const linha = [

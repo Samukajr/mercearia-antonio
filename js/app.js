@@ -80,6 +80,16 @@ window.auth.onAuthStateChanged((user) => {
     }
     atualizarSaldoCaixa();
     atualizarCardsDashboard();
+    
+      // Verificar consentimento LGPD
+      if (window.verificarConsentimentoLGPD && !verificarConsentimentoLGPD()) {
+        setTimeout(() => mostrarModalConsentimentoLGPD(), 500);
+      }
+    
+      // Registrar login no log de auditoria
+      if (window.registrarAuditoria) {
+        registrarAuditoria('login', 'auth', { metodo: 'email_password' });
+      }
   } else {
     dashboardScreen.classList.remove('active');
     loginScreen.classList.add('active');
@@ -139,3 +149,14 @@ window.toggleSidebar = toggleSidebar;
 window.showSection = showSection;
 window.logout = logout;
 window.closeModal = closeModal;
+
+// Habilitar botão de aceite LGPD quando checkbox for marcado
+document.addEventListener('DOMContentLoaded', () => {
+  const checkbox = document.getElementById('lgpd-aceite-checkbox');
+  const btn = document.getElementById('lgpd-aceitar-btn');
+  if (checkbox && btn) {
+    checkbox.addEventListener('change', () => {
+      btn.disabled = !checkbox.checked;
+    });
+  }
+});

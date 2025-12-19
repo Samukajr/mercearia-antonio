@@ -71,6 +71,10 @@
             
             <div class="login-footer">
                 <p>Versão 1.0 | &copy; 2025 Mercearia do Antonio</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.85rem;">
+                        <a href="politica-privacidade.html" target="_blank" style="color: var(--primary-color);">Política de Privacidade</a> |
+                        <a href="termos-uso.html" target="_blank" style="color: var(--primary-color);">Termos de Uso</a>
+                    </p>
             </div>
         </div>
     </div>
@@ -116,6 +120,10 @@
                     <i class="fas fa-chart-line"></i>
                     <span>Relatórios</span>
                 </a>
+                    <a href="#" class="nav-item" data-section="privacidade" onclick="showSection('privacidade')">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Privacidade e Dados</span>
+                    </a>
             </nav>
         </aside>
 
@@ -444,6 +452,85 @@
                     </div>
                 </div>
             </section>
+
+                <!-- Seção Privacidade e Dados -->
+                <section id="section-privacidade" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-shield"></i> Privacidade e Dados Pessoais</h2>
+                        <p>Exerça seus direitos conforme a Lei Geral de Proteção de Dados (LGPD)</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-info-circle"></i> Seus Direitos LGPD</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>De acordo com a LGPD (Lei nº 13.709/2018), você possui os seguintes direitos sobre seus dados pessoais:</p>
+                            <ul style="line-height: 2; margin: 1rem 0;">
+                                <li><strong>Confirmação e acesso:</strong> Saber quais dados pessoais tratamos sobre você.</li>
+                                <li><strong>Correção:</strong> Solicitar correção de dados incompletos ou inexatos.</li>
+                                <li><strong>Portabilidade:</strong> Receber seus dados em formato estruturado.</li>
+                                <li><strong>Exclusão:</strong> Solicitar eliminação de dados desnecessários.</li>
+                                <li><strong>Revogação:</strong> Retirar seu consentimento a qualquer momento.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="relatorios-grid" style="margin-top: 1rem;">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-download"></i> Exportar Meus Dados</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Baixe uma cópia completa de todos os seus dados em formato JSON (produtos, vendas, movimentações, logs).</p>
+                                <button class="btn btn-primary" onclick="exportarMeusDados()">
+                                    <i class="fas fa-file-export"></i> Exportar Dados (JSON)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-file-alt"></i> Documentos Legais</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Consulte nossa política de privacidade e termos de uso:</p>
+                                <a href="politica-privacidade.html" target="_blank" class="btn btn-secondary" style="margin-right: 0.5rem;">
+                                    <i class="fas fa-shield-alt"></i> Política de Privacidade
+                                </a>
+                                <a href="termos-uso.html" target="_blank" class="btn btn-secondary">
+                                    <i class="fas fa-file-contract"></i> Termos de Uso
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-trash-alt"></i> Excluir Minha Conta</h3>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Atenção:</strong> Esta ação é irreversível e excluirá permanentemente todos os seus dados.</p>
+                                <button class="btn btn-danger" onclick="solicitarExclusaoConta()">
+                                    <i class="fas fa-exclamation-triangle"></i> Excluir Conta e Dados
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-envelope"></i> Contato - Encarregado de Dados</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Para exercer seus direitos ou esclarecer dúvidas sobre privacidade:</p>
+                                <p><strong>Email:</strong> <a href="mailto:privacidade@mercearia-antonio.com.br">privacidade@mercearia-antonio.com.br</a></p>
+                                <p><strong>DPO:</strong> <a href="mailto:dpo@mercearia-antonio.com.br">dpo@mercearia-antonio.com.br</a></p>
+                                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--gray-text);">
+                                    <i class="fas fa-clock"></i> Prazo de resposta: até 15 dias úteis (Art. 19, §3º LGPD)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
         </main>
     </div>
 
@@ -590,6 +677,59 @@
     <!-- Toast de Notificação -->
     <div id="toast" class="toast"></div>
 
+        <!-- Modal Consentimento LGPD -->
+        <div id="modal-lgpd-consent" class="modal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-shield-alt"></i> Política de Privacidade e Termos de Uso</h3>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Bem-vindo ao Mercearia do Antonio!</strong></p>
+                    <p>Para utilizar nosso sistema, você precisa ler e aceitar nossos documentos legais:</p>
+                
+                    <div style="background: #f0f7f0; padding: 1rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid var(--primary-color);">
+                        <p><strong><i class="fas fa-info-circle"></i> Proteção de Dados (LGPD)</strong></p>
+                        <ul style="margin: 0.5rem 0 0 1.5rem; line-height: 1.8;">
+                            <li>Coletamos apenas dados necessários para o funcionamento do sistema</li>
+                            <li>Seus dados são armazenados com segurança no Firebase (Brasil)</li>
+                            <li>Você pode exportar ou excluir seus dados a qualquer momento</li>
+                            <li>Cumprimos rigorosamente a LGPD (Lei nº 13.709/2018)</li>
+                        </ul>
+                    </div>
+
+                    <p style="margin-top: 1rem;">
+                        <a href="politica-privacidade.html" target="_blank" style="color: var(--primary-color); text-decoration: underline;">
+                            <i class="fas fa-external-link-alt"></i> Ler Política de Privacidade completa
+                        </a>
+                    </p>
+                    <p>
+                        <a href="termos-uso.html" target="_blank" style="color: var(--primary-color); text-decoration: underline;">
+                            <i class="fas fa-external-link-alt"></i> Ler Termos de Uso completos
+                        </a>
+                    </p>
+
+                    <div style="background: #fff9e6; padding: 1rem; border-radius: 6px; margin-top: 1rem; border: 1px solid #ffd700;">
+                        <label style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                            <input type="checkbox" id="lgpd-aceite-checkbox" style="margin-top: 0.2rem;">
+                            <span style="flex: 1;">
+                                Declaro que li e compreendi a <strong>Política de Privacidade</strong> e os <strong>Termos de Uso</strong>, 
+                                e concordo com o tratamento dos meus dados pessoais conforme descrito.
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="modal-footer" style="margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="recusarLGPD()">
+                            <i class="fas fa-times"></i> Não Aceito
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="aceitarLGPD()" id="lgpd-aceitar-btn" disabled>
+                            <i class="fas fa-check"></i> Aceito e Concordo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -603,6 +743,8 @@
 
     <!-- Scripts -->
     <script src="js/firebase-config.js"></script>
+        <script src="js/firestore-helpers.js"></script>
+        <script src="js/lgpd.js"></script>
     <script src="js/app.js"></script>
     <script src="js/vendas.js"></script>
     <script src="js/estoque.js"></script>

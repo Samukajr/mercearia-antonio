@@ -1,9 +1,53 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Único proprietário autenticado pode acessar
+    // Regras multi-tenant: cada usuário acessa apenas seus próprios dados
+    
+    // Produtos
+    match /produtos/{produtoId} {
+      allow read, write: if request.auth != null && 
+                             request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Vendas
+    match /vendas/{vendaId} {
+      allow read, write: if request.auth != null && 
+                             request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Movimentações de caixa
+    match /movimentacoes/{movId} {
+      allow read, write: if request.auth != null && 
+                             request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Logs de auditoria - usuário pode ler apenas seus próprios logs
+    match /auditLogs/{logId} {
+      allow read: if request.auth != null && 
+                     request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId;
+      allow update, delete: if false; // Logs são imutáveis
+    }
+    
+    // Consentimentos LGPD - usuário pode criar e ler apenas seus próprios
+    match /lgpdConsents/{consentId} {
+      allow read: if request.auth != null && 
+                     request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId;
+      allow update, delete: if false; // Consentimentos são imutáveis
+    }
+    
+    // Bloquear tudo que não está explicitamente permitido
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }

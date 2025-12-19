@@ -1,5 +1,6 @@
 function carregarEstoque() {
-  window.db.collection('produtos').orderBy('nome').onSnapshot((snap) => {
+  const ref = window.db.collection('produtos');
+  queryByUser(ref).orderBy('nome').onSnapshot((snap) => {
     const tbody = document.getElementById('tbody-estoque');
     tbody.innerHTML = '';
     if (snap.empty) {
@@ -85,11 +86,11 @@ async function salvarProduto(e) {
   }
   try {
     if (id) {
-      await window.db.collection('produtos').doc(id).update(dados);
+      await window.db.collection('produtos').doc(id).update(addUserId(dados));
       showToast('success', 'Produto atualizado!');
     } else {
       dados.criadoEm = firebase.firestore.Timestamp.now();
-      await window.db.collection('produtos').add(dados);
+      await window.db.collection('produtos').add(addUserId(dados));
       showToast('success', 'Produto criado!');
     }
     closeModal('modal-produto');
@@ -595,7 +596,7 @@ async function processarAjusteRapido(codigo) {
       const ok = confirm(`A quantidade resultante (${novo}) ficará abaixo do estoque mínimo (${min}). Deseja confirmar o ajuste?`);
       if (!ok) { showToast('info', 'Ajuste cancelado por estoque mínimo.'); return; }
     }
-    await window.db.collection('produtos').doc(doc.id).update({ quantidade: novo, atualizadoEm: firebase.firestore.Timestamp.now() });
+    await window.db.collection('produtos').doc(doc.id).update(addUserId({ quantidade: novo, atualizadoEm: firebase.firestore.Timestamp.now() }));
     showToast('success', `Quantidade ajustada: ${atual} → ${novo}`);
     carregarProdutosVenda();
   } catch (err) {
@@ -691,7 +692,7 @@ async function processarAtualizacaoRapida(codigo) {
       if (!Number.isNaN(v) && v >= 0) { updates.preco = v; alterou = true; }
     }
     if (!alterou) { showToast('info', 'Nenhuma alteração aplicada.'); return; }
-    await window.db.collection('produtos').doc(doc.id).update(updates);
+    await window.db.collection('produtos').doc(doc.id).update(addUserId(updates));
     showToast('success', 'Produto atualizado com sucesso!');
     carregarProdutosVenda();
   } catch (err) {
@@ -884,7 +885,7 @@ async function importarCSVEstoqueFromInput(evt) {
     const okHeader = ['nome','codigo','categoria','preco','quantidade','estoqueMin'].every(h => header.includes(h));
     if (!okHeader) { showToast('error', 'Cabeçalho inválido. Use o modelo gerado.'); return; }
 
-    const existentesSnap = await window.db.collection('produtos').get();
+    const existentesSnap = await queryByUser(window.db.collection('produtos')).get();
     const existentesCodigos = new Set();
     const existentesByCodigo = new Map();
     existentesSnap.forEach(d => { const p = d.data(); if (p.codigo) { existentesCodigos.add(p.codigo); existentesByCodigo.set(p.codigo, d.id); } });
@@ -913,7 +914,7 @@ async function importarCSVEstoqueFromInput(evt) {
         };
         if (batch) {
           const ref = window.db.collection('produtos').doc();
-          batch.set(ref, dados);
+          batch.set(ref, addUserId(dados));
         } else {
           await window.db.collection('produtos').add(dados);
         }
