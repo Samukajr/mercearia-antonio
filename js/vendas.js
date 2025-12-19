@@ -247,12 +247,27 @@ async function adicionarPorCodigo(codigo) {
     }
     const doc = qsnap.docs[0];
     const p = doc.data();
-    if (!p || (p.quantidade ?? 0) <= 0) {
+    const disponivel = Number(p.quantidade ?? 0);
+    if (!p || disponivel <= 0) {
       showToast('warning', 'Produto sem estoque disponível.');
       return;
     }
-    adicionarAoCarrinho(doc.id, p);
-    showToast('success', `Adicionado: ${p.nome}`);
+    const qtdStr = prompt(`Quantidade para "${p.nome}" (estoque: ${disponivel})`, '1');
+    if (qtdStr === null) {
+      showToast('info', 'Operação cancelada.');
+      return;
+    }
+    let qtd = parseInt(qtdStr, 10);
+    if (Number.isNaN(qtd) || qtd <= 0) {
+      showToast('warning', 'Quantidade inválida.');
+      return;
+    }
+    if (qtd > disponivel) {
+      showToast('warning', `Quantidade maior que estoque. Ajustado para ${disponivel}.`);
+      qtd = disponivel;
+    }
+    adicionarAoCarrinhoComQtd(doc.id, p, qtd);
+    showToast('success', `Adicionado: ${p.nome} x${qtd}`);
   } catch (err) {
     console.error('Falha ao adicionar por código', err);
     showToast('error', 'Erro ao buscar produto por código.');
@@ -260,3 +275,13 @@ async function adicionarPorCodigo(codigo) {
 }
 
 window.openScannerVenda = openScannerVenda;
+
+function adicionarAoCarrinhoComQtd(id, p, qtd) {
+  const idx = carrinho.findIndex(i => i.id === id);
+  if (idx >= 0) {
+    carrinho[idx].qtd += qtd;
+  } else {
+    carrinho.push({ id, nome: p.nome, preco: p.preco, qtd });
+  }
+  renderizarCarrinho();
+}
