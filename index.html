@@ -271,9 +271,39 @@
                         <button class="btn btn-success" onclick="cadastroRapidoPorCodigo()" title="Cadastro rápido lendo código">
                             <i class="fas fa-barcode"></i> Cadastro Rápido
                         </button>
+                        <button class="btn btn-warning" onclick="atualizacaoRapidaPorCodigo()" title="Atualização rápida por código">
+                            <i class="fas fa-wrench"></i> Atualização Rápida
+                        </button>
+                        <button class="btn btn-warning" onclick="ajusteRapidoPorCodigo()" title="Ajuste rápido de quantidade por código">
+                            <i class="fas fa-plus-minus"></i> Ajuste Rápido
+                        </button>
                         <button class="btn btn-secondary" onclick="openScanner()" title="Ler QR/Código de Barras no modal">
                             <i class="fas fa-qrcode"></i> Ler Código
                         </button>
+                        <button class="btn" onclick="gerarModeloCSVEstoque()" title="Gerar modelo CSV para importação">
+                            <i class="fas fa-file-csv"></i> Modelo CSV
+                        </button>
+                        <button class="btn" onclick="gerarModeloAjusteCSVEstoque()" title="Gerar modelo de ajuste CSV (delta)">
+                            <i class="fas fa-file-csv"></i> Modelo Ajuste CSV
+                        </button>
+                        <button class="btn" onclick="abrirImportacaoCSVEstoque()" title="Importar produtos via CSV">
+                            <i class="fas fa-upload"></i> Importar CSV
+                        </button>
+                        <button class="btn" onclick="abrirAtualizacaoCSVEstoque()" title="Atualizar produtos via CSV">
+                            <i class="fas fa-sync"></i> Atualizar CSV
+                        </button>
+                        <button class="btn" onclick="abrirAjusteCSVEstoque()" title="Ajustar quantidades via CSV (delta)">
+                            <i class="fas fa-exchange-alt"></i> Ajustar CSV
+                        </button>
+                        <label style="display:flex; align-items:center; gap:.4rem; font-size:.95rem; margin-left:.5rem;">
+                            <input type="checkbox" id="ajuste-validate-min-toggle" checked>
+                            Validar estoque mínimo em ajustes
+                        </label>
+                        <label style="display:flex; align-items:center; gap:.4rem; font-size:.95rem; margin-left:.5rem;">
+                            <input type="checkbox" id="ajuste-allow-below-min-toggle">
+                            Permitir abaixo do mínimo no CSV
+                        </label>
+                        <input type="file" id="estoque-csv-input" accept=".csv" style="display:none;">
                     </div>
                 </div>
 

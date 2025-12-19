@@ -65,11 +65,8 @@ async function carregarProdutosVenda() {
         <div class="produto-preco">${formatCurrency(p.preco)}</div>
         <div class="produto-estoque">Estoque: ${p.quantidade}</div>`;
       grid.appendChild(card);
-  let scannerFeedbackEnabled = true;
-
     });
   } catch (err) {
-      if (!scannerFeedbackEnabled) return;
     console.error('Erro ao carregar produtos para venda', err);
     const code = err && err.code ? err.code : 'erro-desconhecido';
     if (code === 'permission-denied') {
@@ -111,39 +108,6 @@ function renderizarCarrinho() {
   let subtotal = 0;
   carrinho.forEach((i, idx) => {
     subtotal += i.preco * i.qtd;
-
-  // Preferências e controles (feedback + manual)
-  function initVendaControls() {
-    try {
-      // Feedback preference
-      const saved = localStorage.getItem('scannerFeedback');
-      if (saved === 'false') scannerFeedbackEnabled = false; else scannerFeedbackEnabled = true;
-      const chk = document.getElementById('scan-feedback-toggle');
-      if (chk) {
-        chk.checked = scannerFeedbackEnabled;
-        chk.addEventListener('change', () => {
-          scannerFeedbackEnabled = chk.checked;
-          localStorage.setItem('scannerFeedback', scannerFeedbackEnabled ? 'true' : 'false');
-        });
-      }
-    } catch (e) { /* silencioso */ }
-  }
-
-  function adicionarPorCodigoManual() {
-    try {
-      const el = document.getElementById('scan-code-manual');
-      const codigo = (el && el.value || '').trim();
-      if (!codigo) {
-        showToast('warning', 'Informe um código válido');
-        return;
-      }
-      adicionarPorCodigo(codigo);
-    } catch (e) {
-      console.error('Falha ao adicionar por código manual', e);
-    }
-  }
-
-  window.adicionarPorCodigoManual = adicionarPorCodigoManual;
     const row = document.createElement('div');
     row.className = 'carrinho-item';
     row.innerHTML = `
@@ -228,6 +192,11 @@ let lastVendaCodigo = null;
 let lastVendaTimestamp = 0;
 let scannerSessionTotal = 0;
 let vendaDeviceId = null;
+let scannerFeedbackEnabled = true;
+let useNativeDetector = false;
+let nativeDetector = null;
+let nativeDetectTimer = null;
+let scannerVideoStream = null;
 
 function resetScannerStatusUI() {
   const elCode = document.getElementById('scanner-last-code');
@@ -270,6 +239,7 @@ function setScannerState(text, stateClass) {
 // Feedback tátil/sonoro ao adicionar
 function playScanFeedback(success) {
   try {
+    if (!scannerFeedbackEnabled) return;
     if (navigator.vibrate) {
       navigator.vibrate(success ? [10, 30, 10] : [60]);
     }
@@ -294,6 +264,21 @@ async function openScannerVenda() {
   resetScannerStatusUI();
   setScannerState('Lendo', 'ok');
   try {
+    // Tentar usar BarcodeDetector nativo quando disponível
+    useNativeDetector = false;
+    if (window.BarcodeDetector) {
+      try {
+        const supported = await BarcodeDetector.getSupportedFormats();
+        const needed = ['qr_code','ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf'];
+        const ok = needed.some(fmt => supported.includes(fmt));
+        if (ok) {
+          nativeDetector = new BarcodeDetector({ formats: needed });
+          useNativeDetector = true;
+        }
+      } catch (_) {
+        useNativeDetector = false;
+      }
+    }
     if (!vendaCodeReader && window.ZXing && ZXing.BrowserMultiFormatReader) {
       // Hints para formatos comuns de código de barras e QR
       const hints = new Map();
@@ -316,13 +301,17 @@ async function openScannerVenda() {
       showToast('error', 'Leitor indisponível. Verifique permissões da câmera.');
       return;
     }
-    const devices = await vendaCodeReader.listVideoInputDevices();
-    let deviceId;
-    const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
-    if (rearCamera) deviceId = rearCamera.deviceId; else deviceId = devices?.[0]?.deviceId;
-    vendaDeviceId = deviceId || undefined;
     scannerVendaAtivo = true;
-    startScannerVendaStream();
+    if (useNativeDetector) {
+      await startNativeScannerVendaStream();
+    } else {
+      const devices = await vendaCodeReader.listVideoInputDevices();
+      let deviceId;
+      const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
+      if (rearCamera) deviceId = rearCamera.deviceId; else deviceId = devices?.[0]?.deviceId;
+      vendaDeviceId = deviceId || undefined;
+      startScannerVendaStream();
+    }
   } catch (err) {
     console.error('Falha ao iniciar scanner de venda', err);
     showToast('error', 'Não foi possível iniciar a câmera.');
@@ -356,6 +345,51 @@ function startScannerVendaStream() {
   } catch (e) {
     console.error('Falha ao iniciar stream de leitura', e);
     setScannerState('Erro ao ler', '#c62828');
+  }
+}
+
+async function startNativeScannerVendaStream() {
+  try {
+    const videoEl = document.getElementById('scanner-video');
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+    scannerVideoStream = stream;
+    if (videoEl) {
+      videoEl.srcObject = stream;
+      await videoEl.play();
+    }
+    const detectLoop = async () => {
+      if (!scannerVendaAtivo || !nativeDetector) return;
+      try {
+        const video = document.getElementById('scanner-video');
+        const barcodes = await nativeDetector.detect(video);
+        if (barcodes && barcodes.length > 0) {
+          const raw = barcodes[0].rawValue || barcodes[0].value || '';
+          const codigo = String(raw).trim();
+          const now = Date.now();
+          if (!(codigo === lastVendaCodigo && (now - lastVendaTimestamp) < 2000)) {
+            lastVendaCodigo = codigo;
+            lastVendaTimestamp = now;
+            try { await adicionarPorCodigo(codigo); } catch (e) { console.error(e); }
+            updateScannerStatusUI(codigo, null, null, false);
+          }
+        }
+      } catch (e) { /* silencioso */ }
+      if (scannerVendaAtivo) {
+        nativeDetectTimer = setTimeout(detectLoop, 300);
+      }
+    };
+    detectLoop();
+  } catch (e) {
+    console.error('Falha ao iniciar BarcodeDetector nativo', e);
+    setScannerState('Erro ao ler', 'error');
+    // Fallback imediato para ZXing
+    useNativeDetector = false;
+    const devices = await vendaCodeReader.listVideoInputDevices();
+    let deviceId;
+    const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
+    if (rearCamera) deviceId = rearCamera.deviceId; else deviceId = devices?.[0]?.deviceId;
+    vendaDeviceId = deviceId || undefined;
+    startScannerVendaStream();
   }
 }
 
@@ -424,6 +458,19 @@ function closeScannerVenda() {
     scannerVendaAtivo = false;
     if (vendaCodeReader) vendaCodeReader.reset();
   } catch (_) {}
+  try {
+    if (nativeDetectTimer) { clearTimeout(nativeDetectTimer); nativeDetectTimer = null; }
+    const videoEl = document.getElementById('scanner-video');
+    if (videoEl && videoEl.srcObject) {
+      const tracks = videoEl.srcObject.getTracks();
+      tracks.forEach(t => t.stop());
+      videoEl.srcObject = null;
+    }
+    if (scannerVideoStream) {
+      scannerVideoStream.getTracks().forEach(t => t.stop());
+      scannerVideoStream = null;
+    }
+  } catch (_) {}
   if (window.closeScanner) window.closeScanner();
   scannerSessionTotal = 0;
   setScannerState('Aguardando', 'waiting');
@@ -434,9 +481,26 @@ function toggleScannerVenda() {
     scannerVendaAtivo = !scannerVendaAtivo;
     if (scannerVendaAtivo) {
       setScannerState('Lendo', 'ok');
-      startScannerVendaStream();
+      if (useNativeDetector) {
+        startNativeScannerVendaStream();
+      } else {
+        startScannerVendaStream();
+      }
     } else {
       if (vendaCodeReader) vendaCodeReader.reset();
+      try {
+        if (nativeDetectTimer) { clearTimeout(nativeDetectTimer); nativeDetectTimer = null; }
+        const videoEl = document.getElementById('scanner-video');
+        if (videoEl && videoEl.srcObject) {
+          const tracks = videoEl.srcObject.getTracks();
+          tracks.forEach(t => t.stop());
+          videoEl.srcObject = null;
+        }
+        if (scannerVideoStream) {
+          scannerVideoStream.getTracks().forEach(t => t.stop());
+          scannerVideoStream = null;
+        }
+      } catch (_) {}
       setScannerState('Pausado', 'paused');
     }
   } catch (e) {
