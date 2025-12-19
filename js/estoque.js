@@ -194,6 +194,9 @@ function closeScanner() {
   try {
     if (codeReader) codeReader.reset();
   } catch (_) {}
+  try {
+    if (window.vendaCodeReader) window.vendaCodeReader.reset();
+  } catch (_) {}
   document.getElementById('modal-scanner').classList.remove('active');
 }
 

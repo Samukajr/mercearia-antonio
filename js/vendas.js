@@ -187,6 +187,9 @@ window.removerCarrinho = removerCarrinho;
 
 // Scanner para adicionar produtos por código
 let vendaCodeReader;
+let scannerVendaAtivo = false;
+let lastVendaCodigo = null;
+let lastVendaTimestamp = 0;
 
 async function openScannerVenda() {
   const modal = document.getElementById('modal-scanner');
@@ -208,11 +211,13 @@ async function openScannerVenda() {
       hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
       hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
       vendaCodeReader = new ZXing.BrowserMultiFormatReader(hints);
+      window.vendaCodeReader = vendaCodeReader;
     }
     if (!vendaCodeReader) {
       showToast('error', 'Leitor indisponível. Verifique permissões da câmera.');
       return;
     }
+    scannerVendaAtivo = true;
     const devices = await vendaCodeReader.listVideoInputDevices();
     let deviceId;
     const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
@@ -222,10 +227,18 @@ async function openScannerVenda() {
       deviceId || undefined,
       'scanner-video',
       async (result, err) => {
+        if (!scannerVendaAtivo) return;
         if (result && result.text) {
           const codigo = result.text.trim();
+          const now = Date.now();
+          // Evitar duplicatas em sequência (2s)
+          if (codigo === lastVendaCodigo && (now - lastVendaTimestamp) < 2000) {
+            return;
+          }
+          lastVendaCodigo = codigo;
+          lastVendaTimestamp = now;
           try { await adicionarPorCodigo(codigo); } catch (e) { console.error(e); }
-          if (window.closeScanner) window.closeScanner();
+          // Permanece em modo contínuo até cancelar
         }
       },
       { facingMode: 'environment' }
@@ -275,6 +288,15 @@ async function adicionarPorCodigo(codigo) {
 }
 
 window.openScannerVenda = openScannerVenda;
+
+function closeScannerVenda() {
+  try {
+    scannerVendaAtivo = false;
+    if (vendaCodeReader) vendaCodeReader.reset();
+  } catch (_) {}
+  if (window.closeScanner) window.closeScanner();
+}
+window.closeScannerVenda = closeScannerVenda;
 
 function adicionarAoCarrinhoComQtd(id, p, qtd) {
   const idx = carrinho.findIndex(i => i.id === id);
