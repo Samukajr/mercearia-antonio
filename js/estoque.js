@@ -224,6 +224,104 @@ async function autoPreencherPorCodigo(codigo) {
 
 window.openScanner = openScanner;
 window.closeScanner = closeScanner;
+
+// Cadastro rápido por código
+let cadastroRapidoAtivo = false;
+
+async function cadastroRapidoPorCodigo() {
+  cadastroRapidoAtivo = true;
+  const modal = document.getElementById('modal-scanner');
+  modal.classList.add('active');
+  try {
+    if (!codeReader && window.ZXing && ZXing.BrowserMultiFormatReader) {
+      codeReader = new ZXing.BrowserMultiFormatReader();
+    }
+    if (!codeReader) {
+      showToast('error', 'Leitor indisponível. Verifique permissões da câmera.');
+      cadastroRapidoAtivo = false;
+      return;
+    }
+    const devices = await codeReader.listVideoInputDevices();
+    let deviceId;
+    const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
+    if (rearCamera) {
+      deviceId = rearCamera.deviceId;
+    } else {
+      deviceId = devices?.[0]?.deviceId;
+    }
+    await codeReader.decodeFromVideoDevice(
+      deviceId || undefined,
+      'scanner-video',
+      async (result, err) => {
+        if (result && result.text && cadastroRapidoAtivo) {
+          const codigo = result.text.trim();
+          closeScanner();
+          cadastroRapidoAtivo = false;
+          await processarCadastroRapido(codigo);
+        }
+      },
+      { facingMode: 'environment' }
+    );
+  } catch (err) {
+    console.error('Falha ao iniciar scanner para cadastro rápido', err);
+    showToast('error', 'Não foi possível iniciar a câmera.');
+    cadastroRapidoAtivo = false;
+  }
+}
+
+async function processarCadastroRapido(codigo) {
+  try {
+    // Verificar se já existe
+    const existente = await window.db.collection('produtos').where('codigo', '==', codigo).get();
+    if (!existente.empty) {
+      showToast('warning', `Produto com código ${codigo} já cadastrado!`);
+      return;
+    }
+
+    // Tentar buscar no OpenFoodFacts
+    const url = `https://world.openfoodfacts.org/api/v0/product/${encodeURIComponent(codigo)}.json`;
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (data && data.status === 1 && data.product) {
+      const produto = data.product;
+      const nome = produto.product_name || produto.generic_name || `Produto ${codigo}`;
+      const categoriasTxt = (produto.categories || '').toLowerCase();
+      let categoria = 'outros';
+      if (categoriasTxt.includes('bread') || categoriasTxt.includes('pão') || categoriasTxt.includes('bakery')) categoria = 'paes';
+      else if (categoriasTxt.includes('cake') || categoriasTxt.includes('bolo')) categoria = 'bolos';
+      else if (categoriasTxt.includes('candy') || categoriasTxt.includes('doce') || categoriasTxt.includes('confectionery')) categoria = 'doces';
+      else if (categoriasTxt.includes('beverage') || categoriasTxt.includes('bebida') || categoriasTxt.includes('drink')) categoria = 'bebidas';
+
+      // Salvar automaticamente
+      const novoProduto = {
+        nome: nome,
+        codigo: codigo,
+        categoria: categoria,
+        preco: 0,
+        quantidade: 0,
+        estoqueMin: 1,
+        criadoEm: firebase.firestore.Timestamp.now(),
+        atualizadoEm: firebase.firestore.Timestamp.now()
+      };
+      
+      await window.db.collection('produtos').add(novoProduto);
+      showToast('success', `Produto "${nome}" cadastrado! Atualize preço e quantidade.`);
+      carregarProdutosVenda();
+    } else {
+      // Não encontrou dados: abrir modal pré-preenchido
+      showToast('info', 'Código válido, mas sem dados externos. Complete o cadastro.');
+      showModalProduto();
+      document.getElementById('produto-codigo').value = codigo;
+    }
+  } catch (err) {
+    console.error('Erro no cadastro rápido', err);
+    showToast('error', 'Falha no cadastro rápido.');
+  }
+}
+
+window.cadastroRapidoPorCodigo = cadastroRapidoPorCodigo;
+
 // QR interno
 function gerarCodigoInterno() {
   const el = document.getElementById('produto-codigo');
