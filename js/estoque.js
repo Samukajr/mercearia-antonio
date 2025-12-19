@@ -147,16 +147,29 @@ async function openScanner() {
       return;
     }
     const devices = await codeReader.listVideoInputDevices();
-    const deviceId = devices?.[0]?.deviceId;
-    await codeReader.decodeFromVideoDevice(deviceId || undefined, 'scanner-video', (result, err) => {
-      if (result && result.text) {
-        const codigo = result.text.trim();
-        document.getElementById('produto-codigo').value = codigo;
-        showToast('success', `Código detectado: ${codigo}`);
-        closeScanner();
-        autoPreencherPorCodigo(codigo);
-      }
-    });
+    // Preferir câmera traseira (environment) para mobile
+    let deviceId;
+    const rearCamera = devices?.find(d => d.label && d.label.toLowerCase().includes('back'));
+    if (rearCamera) {
+      deviceId = rearCamera.deviceId;
+    } else {
+      // Fallback: usar primeira câmera com constraint facingMode
+      deviceId = devices?.[0]?.deviceId;
+    }
+    await codeReader.decodeFromVideoDevice(
+      deviceId || undefined,
+      'scanner-video',
+      (result, err) => {
+        if (result && result.text) {
+          const codigo = result.text.trim();
+          document.getElementById('produto-codigo').value = codigo;
+          showToast('success', `Código detectado: ${codigo}`);
+          closeScanner();
+          autoPreencherPorCodigo(codigo);
+        }
+      },
+      { facingMode: 'environment' } // Força câmera traseira em mobile
+    );
   } catch (err) {
     console.error('Falha ao iniciar scanner', err);
     showToast('error', 'Não foi possível iniciar a câmera.');
