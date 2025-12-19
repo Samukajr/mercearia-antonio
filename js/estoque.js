@@ -821,7 +821,6 @@ function baixarCSVEstoque(conteudo, nome) {
   a.href = url;
   a.download = nome;
   document.body.appendChild(a);
-  let ajusteRapidoAtivo = false;
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
@@ -868,12 +867,6 @@ function parseCSVLine(line) {
       else if (ch === ',') { result.push(cur); cur = ''; }
       else { cur += ch; }
     }
-              if (modo === 'ajuste') {
-                closeScanner();
-                ajusteRapidoAtivo = false;
-                await processarAjusteRapido(codigo);
-                return;
-              }
   }
   result.push(cur);
   return result;
@@ -961,9 +954,12 @@ async function atualizarCSVEstoqueFromInput(evt) {
 
     const existentesSnap = await window.db.collection('produtos').get();
     const idByCodigo = new Map();
+    const prevByCodigo = new Map();
     existentesSnap.forEach(d => { const p = d.data(); if (p.codigo) idByCodigo.set(p.codigo, d.id); });
+    existentesSnap.forEach(d => { const p = d.data(); if (p.codigo) prevByCodigo.set(p.codigo, { nome: p.nome || '', categoria: p.categoria || '', preco: Number(p.preco ?? ''), quantidade: Number(p.quantidade ?? ''), estoqueMin: Number(p.estoqueMin ?? '') }); });
 
-    let atualizados = 0; let naoEncontrados = 0; let erros = 0;
+    let atualizados = 0; let naoEncontrados = 0; let erros = 0; let semAlteracao = 0;
+    const relatorio = [];
     const batch = window.db.batch ? window.db.batch() : null;
     for (let i = 1; i < linhas.length; i++) {
       try {
@@ -971,15 +967,36 @@ async function atualizarCSVEstoqueFromInput(evt) {
         const map = new Map();
         header.forEach((h, idx) => map.set(h, cols[idx] ?? ''));
         let codigo = (map.get('codigo') || '').trim();
-        if (!codigo) { naoEncontrados++; continue; }
+        if (!codigo) { naoEncontrados++; relatorio.push({ codigo: '(vazio)', status: 'codigo_vazio' }); continue; }
         const id = idByCodigo.get(codigo);
-        if (!id) { naoEncontrados++; continue; }
+        if (!id) { naoEncontrados++; relatorio.push({ codigo, status: 'nao_encontrado' }); continue; }
         const updates = { atualizadoEm: firebase.firestore.Timestamp.now() };
+        const prev = prevByCodigo.get(codigo) || { nome:'', categoria:'', preco:'', quantidade:'', estoqueMin:'' };
         const nome = (map.get('nome') || '').trim(); if (nome) updates.nome = nome;
         const categoria = (map.get('categoria') || '').trim(); if (categoria) updates.categoria = categoria.toLowerCase();
         const precoStr = (map.get('preco') || '').trim(); if (precoStr !== '') { const v = Number(precoStr); if (!Number.isNaN(v) && v >= 0) updates.preco = v; }
         const qtdStr = (map.get('quantidade') || '').trim(); if (qtdStr !== '') { const q = Number(qtdStr); if (!Number.isNaN(q) && q >= 0) updates.quantidade = q; }
         const minStr = (map.get('estoqueMin') || map.get('estoquemin') || '').trim(); if (minStr !== '') { const m = Number(minStr); if (!Number.isNaN(m) && m >= 0) updates.estoqueMin = m; }
+
+        const changed = {
+          nomeAnterior: prev.nome,
+          nomeNovo: updates.nome !== undefined ? updates.nome : '',
+          categoriaAnterior: prev.categoria,
+          categoriaNova: updates.categoria !== undefined ? updates.categoria : '',
+          precoAnterior: prev.preco,
+          precoNovo: updates.preco !== undefined ? updates.preco : '',
+          quantidadeAnterior: prev.quantidade,
+          quantidadeNova: updates.quantidade !== undefined ? updates.quantidade : '',
+          estoqueMinAnterior: prev.estoqueMin,
+          estoqueMinNovo: updates.estoqueMin !== undefined ? updates.estoqueMin : ''
+        };
+
+        const houveAlteracao = Object.keys(updates).some(k => k !== 'atualizadoEm');
+        if (!houveAlteracao) {
+          semAlteracao++;
+          relatorio.push({ codigo, status: 'sem_alteracao', ...changed });
+          continue;
+        }
         if (batch) {
           const ref = window.db.collection('produtos').doc(id);
           batch.update(ref, updates);
@@ -987,10 +1004,35 @@ async function atualizarCSVEstoqueFromInput(evt) {
           await window.db.collection('produtos').doc(id).update(updates);
         }
         atualizados++;
+        relatorio.push({ codigo, status: 'atualizado', ...changed });
       } catch (_) { erros++; }
     }
     if (batch) { await batch.commit(); }
-    showToast('success', `Atualização CSV: ${atualizados} atualizados, ${naoEncontrados} não encontrados, ${erros} com erro.`);
+    showToast('success', `Atualização CSV: ${atualizados} atualizados, ${semAlteracao} sem alteração, ${naoEncontrados} não encontrados, ${erros} com erro.`);
+    // Gerar relatório detalhado de atualização
+    try {
+      const headerRel = ['codigo','status','nomeAnterior','nomeNovo','categoriaAnterior','categoriaNova','precoAnterior','precoNovo','quantidadeAnterior','quantidadeNova','estoqueMinAnterior','estoqueMinNovo'];
+      const linhasRel = [headerRel.join(',')];
+      relatorio.forEach(r => {
+        const linha = [
+          escapeCSVEstoque(r.codigo ?? ''),
+          escapeCSVEstoque(r.status ?? ''),
+          escapeCSVEstoque(r.nomeAnterior ?? ''),
+          escapeCSVEstoque(r.nomeNovo ?? ''),
+          escapeCSVEstoque(r.categoriaAnterior ?? ''),
+          escapeCSVEstoque(r.categoriaNova ?? ''),
+          String(r.precoAnterior ?? ''),
+          String(r.precoNovo ?? ''),
+          String(r.quantidadeAnterior ?? ''),
+          String(r.quantidadeNova ?? ''),
+          String(r.estoqueMinAnterior ?? ''),
+          String(r.estoqueMinNovo ?? '')
+        ].join(',');
+        linhasRel.push(linha);
+      });
+      const nome = `atualizar-relatorio-${new Date().toISOString().replace(/[:]/g,'-')}.csv`;
+      baixarCSVEstoque(linhasRel.join('\n'), nome);
+    } catch (e) { console.error('Falha ao gerar relatório de atualização', e); }
     carregarProdutosVenda();
   } catch (err) {
     console.error('Falha ao atualizar via CSV', err);
