@@ -63,7 +63,7 @@ document.getElementById('form-movimentacao').addEventListener('submit', async (e
   const descricao = document.getElementById('movimentacao-descricao').value.trim();
   const valor = Number(document.getElementById('movimentacao-valor').value);
   try {
-    await window.db.collection('movimentacoes').add({ tipo, descricao, valor, data: firebase.firestore.Timestamp.now() });
+    await window.db.collection('movimentacoes').add(addUserId({ tipo, descricao, valor, data: firebase.firestore.Timestamp.now() }));
     closeModal('modal-movimentacao');
     showToast('success', 'Movimentação registrada!');
     atualizarSaldoCaixa();

@@ -5,26 +5,27 @@ service cloud.firestore {
     
     // Produtos
     match /produtos/{produtoId} {
-      allow read, write: if request.auth != null && 
-                             request.auth.uid == resource.data.userId;
+      // Atualização permitida se o documento já pertence ao usuário OU se ainda não tem userId e o usuário está definindo-o corretamente
+      allow read, write: if request.auth != null && (
+                            request.auth.uid == resource.data.userId ||
+                            (!resource.data.userId && request.auth.uid == request.resource.data.userId)
+                          );
       allow create: if request.auth != null && 
                        request.auth.uid == request.resource.data.userId;
     }
     
     // Vendas
     match /vendas/{vendaId} {
-      allow read, write: if request.auth != null && 
-                             request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && 
-                       request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if false; // vendas não devem ser alteradas
     }
     
     // Movimentações de caixa
     match /movimentacoes/{movId} {
-      allow read, write: if request.auth != null && 
-                             request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && 
-                       request.auth.uid == request.resource.data.userId;
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
     
     // Logs de auditoria - usuário pode ler apenas seus próprios logs

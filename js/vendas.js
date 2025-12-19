@@ -154,7 +154,7 @@ async function finalizarVenda() {
 
   const batch = window.db.batch();
   const vendaRef = window.db.collection('vendas').doc();
-  batch.set(vendaRef, { forma, total, itens, data: firebase.firestore.Timestamp.now() });
+  batch.set(vendaRef, addUserId({ forma, total, itens, data: firebase.firestore.Timestamp.now() }));
 
   // Baixar estoque
   itens.forEach(i => {
@@ -164,7 +164,7 @@ async function finalizarVenda() {
 
   // Registrar movimentação no caixa
   const movRef = window.db.collection('movimentacoes').doc();
-  batch.set(movRef, { tipo: 'entrada', origem: 'venda', descricao: `Venda (${forma})`, valor: total, data: firebase.firestore.Timestamp.now() });
+  batch.set(movRef, addUserId({ tipo: 'entrada', origem: 'venda', descricao: `Venda (${forma})`, valor: total, data: firebase.firestore.Timestamp.now() }));
 
   try {
     await batch.commit();

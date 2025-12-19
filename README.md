@@ -121,11 +121,25 @@ git commit -m "Initial commit"
 }
 ```
 
-## 🔐 Segurança
+## 🔐 Segurança & Privacidade (LGPD)
 
-- Regras Firestore: Apenas usuários autenticados
-- Sistema single-tenant (um proprietário)
-- Backup recomendado via Firebase Console
+- **Isolamento multi-tenant:** Cada usuário acessa apenas seus próprios dados via `userId`.
+- **Regras Firestore:** Publique `firestore.rules` no Console (Database → Rules).
+- **Consentimento LGPD:** Modal de aceite obrigatório com registro em `lgpdConsents`.
+- **Auditoria:** Ações críticas registradas em `auditLogs` (userId, email, IP, userAgent, timestamp).
+- **Exportação/Exclusão:** Portal em “Privacidade e Dados” para exportar JSON e excluir conta.
+- **Retenção:** Vendas/movimentações 5 anos; logs 2 anos; contas inativas 2 anos (ajustável).
+
+### Passos de Conformidade
+1. Abra `politica-privacidade.html` e `termos-uso.html` para revisão.
+2. Ajuste emails de contato (DPO) nesses arquivos, se necessário.
+3. Publique regras: copie `firestore.rules` no Firebase Console.
+4. Garanta região `southamerica-east1` (São Paulo) no Firestore.
+5. Teste login → aceite LGPD → uso do sistema.
+
+### Observações
+- Se você já tinha dados antigos sem `userId`, as regras permitem atualização com definição de `userId` na primeira alteração.
+- Para migração completa, edite cada documento antigo ou execute rotina de preenchimento de `userId`.
 
 ## 🆘 Suporte
 
