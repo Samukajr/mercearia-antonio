@@ -65,8 +65,11 @@ async function carregarProdutosVenda() {
         <div class="produto-preco">${formatCurrency(p.preco)}</div>
         <div class="produto-estoque">Estoque: ${p.quantidade}</div>`;
       grid.appendChild(card);
+  let scannerFeedbackEnabled = true;
+
     });
   } catch (err) {
+      if (!scannerFeedbackEnabled) return;
     console.error('Erro ao carregar produtos para venda', err);
     const code = err && err.code ? err.code : 'erro-desconhecido';
     if (code === 'permission-denied') {
@@ -108,6 +111,39 @@ function renderizarCarrinho() {
   let subtotal = 0;
   carrinho.forEach((i, idx) => {
     subtotal += i.preco * i.qtd;
+
+  // Preferências e controles (feedback + manual)
+  function initVendaControls() {
+    try {
+      // Feedback preference
+      const saved = localStorage.getItem('scannerFeedback');
+      if (saved === 'false') scannerFeedbackEnabled = false; else scannerFeedbackEnabled = true;
+      const chk = document.getElementById('scan-feedback-toggle');
+      if (chk) {
+        chk.checked = scannerFeedbackEnabled;
+        chk.addEventListener('change', () => {
+          scannerFeedbackEnabled = chk.checked;
+          localStorage.setItem('scannerFeedback', scannerFeedbackEnabled ? 'true' : 'false');
+        });
+      }
+    } catch (e) { /* silencioso */ }
+  }
+
+  function adicionarPorCodigoManual() {
+    try {
+      const el = document.getElementById('scan-code-manual');
+      const codigo = (el && el.value || '').trim();
+      if (!codigo) {
+        showToast('warning', 'Informe um código válido');
+        return;
+      }
+      adicionarPorCodigo(codigo);
+    } catch (e) {
+      console.error('Falha ao adicionar por código manual', e);
+    }
+  }
+
+  window.adicionarPorCodigoManual = adicionarPorCodigoManual;
     const row = document.createElement('div');
     row.className = 'carrinho-item';
     row.innerHTML = `

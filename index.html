@@ -198,6 +198,14 @@
                             <div class="card-actions" style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
                                 <input type="text" id="search-produto" class="search-input" placeholder="Buscar produto...">
                                 <input type="number" id="scan-qtd-default" class="form-control" min="1" placeholder="Qtd. padrão (ex: 1)" style="max-width: 160px;" aria-label="Quantidade padrão para leitura de código">
+                                <label style="display:flex; align-items:center; gap:.4rem; font-size:.95rem;">
+                                    <input type="checkbox" id="scan-feedback-toggle" checked>
+                                    Feedback (som/vibração)
+                                </label>
+                                <input type="text" id="scan-code-manual" class="form-control" placeholder="Código manual" style="max-width: 200px;">
+                                <button class="btn" onclick="adicionarPorCodigoManual()" title="Adicionar por código manual">
+                                    <i class="fas fa-plus-circle"></i> Adicionar por código
+                                </button>
                                 <button class="btn btn-secondary" onclick="openScannerVenda()" title="Ler código para adicionar ao carrinho">
                                     <i class="fas fa-barcode"></i> Ler Código
                                 </button>
