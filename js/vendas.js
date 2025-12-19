@@ -265,12 +265,18 @@ async function adicionarPorCodigo(codigo) {
       showToast('warning', 'Produto sem estoque disponível.');
       return;
     }
-    const qtdStr = prompt(`Quantidade para "${p.nome}" (estoque: ${disponivel})`, '1');
-    if (qtdStr === null) {
-      showToast('info', 'Operação cancelada.');
-      return;
+    // Tentar usar quantidade padrão sem prompt
+    const qtdDefaultEl = document.getElementById('scan-qtd-default');
+    let qtd = parseInt(qtdDefaultEl && qtdDefaultEl.value ? qtdDefaultEl.value : 'NaN', 10);
+    if (Number.isNaN(qtd) || qtd <= 0) {
+      // Sem quantidade padrão válida, pedir via prompt
+      const qtdStr = prompt(`Quantidade para "${p.nome}" (estoque: ${disponivel})`, '1');
+      if (qtdStr === null) {
+        showToast('info', 'Operação cancelada.');
+        return;
+      }
+      qtd = parseInt(qtdStr, 10);
     }
-    let qtd = parseInt(qtdStr, 10);
     if (Number.isNaN(qtd) || qtd <= 0) {
       showToast('warning', 'Quantidade inválida.');
       return;
