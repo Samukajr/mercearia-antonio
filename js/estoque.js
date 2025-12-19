@@ -69,6 +69,19 @@ async function salvarProduto(e) {
     atualizadoEm: firebase.firestore.Timestamp.now()
   };
   try {
+    // Validar duplicidade de código (se informado)
+    if (dados.codigo) {
+      const dupSnap = await window.db.collection('produtos').where('codigo', '==', dados.codigo).get();
+      const duplicado = dupSnap.docs.find(d => d.id !== id);
+      if (duplicado) {
+        showToast('error', 'Já existe produto com este código. Use outro código.');
+        return;
+      }
+    }
+  } catch (err) {
+    console.error('Erro ao validar código duplicado', err);
+  }
+  try {
     if (id) {
       await window.db.collection('produtos').doc(id).update(dados);
       showToast('success', 'Produto atualizado!');
@@ -184,3 +197,44 @@ async function autoPreencherPorCodigo(codigo) {
 
 window.openScanner = openScanner;
 window.closeScanner = closeScanner;
+// QR interno
+function gerarCodigoInterno() {
+  const el = document.getElementById('produto-codigo');
+  if (!el.value) {
+    el.value = 'QR-' + Date.now().toString(36) + '-' + Math.floor(Math.random()*1e6).toString(36);
+  }
+  showToast('success', 'Código interno gerado.');
+}
+
+function openQrModal() {
+  const codigo = document.getElementById('produto-codigo').value.trim();
+  if (!codigo) {
+    gerarCodigoInterno();
+  }
+  const modal = document.getElementById('modal-qr');
+  modal.classList.add('active');
+  const container = document.getElementById('qr-container');
+  container.innerHTML = '';
+  try {
+    // Tamanho padrão para impressão simples
+    const qr = new QRCode(container, {
+      text: document.getElementById('produto-codigo').value.trim(),
+      width: 256,
+      height: 256,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (err) {
+    console.error('Falha ao gerar QR', err);
+    showToast('error', 'Não foi possível gerar o QR.');
+  }
+}
+
+function closeQrModal() {
+  document.getElementById('modal-qr').classList.remove('active');
+}
+
+window.gerarCodigoInterno = gerarCodigoInterno;
+window.openQrModal = openQrModal;
+window.closeQrModal = closeQrModal;
