@@ -16,6 +16,8 @@ function showSection(section) {
   const el = document.getElementById(`section-${section}`);
   if (link) link.classList.add('active');
   if (el) el.classList.add('active');
+  const content = document.querySelector('.dashboard-content');
+  if (content) content.scrollTop = 0;
 }
 
 function showToast(type, message) {
