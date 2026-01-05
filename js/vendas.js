@@ -1,7 +1,7 @@
 let carrinho = [];
 
 function carregarVendasRecentes() {
-  window.db.collection('vendas')
+  queryByUser(window.db.collection('vendas'))
     .where('data', '>=', inicioDoDia())
     .orderBy('data', 'desc')
     .limit(20)
@@ -45,7 +45,7 @@ function formatTime(d) {
 
 // Produtos para venda (carregados do estoque)
 async function carregarProdutosVenda() {
-  const ref = window.db.collection('produtos').orderBy('nome');
+  const ref = queryByUser(window.db.collection('produtos')).orderBy('nome');
   const grid = document.getElementById('lista-produtos-venda');
   grid.innerHTML = '';
   try {
@@ -90,11 +90,15 @@ async function carregarProdutosVenda() {
 }
 
 function adicionarAoCarrinho(id, p) {
+  if ((p.quantidade || 0) <= 0) {
+    showToast('warning', 'Produto sem estoque.');
+    return;
+  }
   const idx = carrinho.findIndex(i => i.id === id);
   if (idx >= 0) {
     carrinho[idx].qtd += 1;
   } else {
-    carrinho.push({ id, nome: p.nome, preco: p.preco, qtd: 1 });
+    carrinho.push({ id, nome: p.nome, preco: p.preco, qtd: 1, estoque: p.quantidade });
   }
   renderizarCarrinho();
 }
@@ -150,6 +154,12 @@ async function finalizarVenda() {
   }
   const forma = document.getElementById('forma-pagamento').value;
   const total = carrinho.reduce((s, i) => s + i.preco * i.qtd, 0);
+  // Validação simples de estoque local para evitar venda negativa
+  const semEstoque = carrinho.find(i => typeof i.qtd === 'number' && typeof (i.estoque || 0) === 'number' && i.qtd > (i.estoque || 0));
+  if (semEstoque) {
+    showToast('error', 'Quantidade no carrinho excede o estoque. Atualize a página/estoque.');
+    return;
+  }
   const itens = carrinho.map(i => ({ id: i.id, nome: i.nome, preco: i.preco, qtd: i.qtd }));
 
   const batch = window.db.batch();
@@ -397,7 +407,7 @@ async function adicionarPorCodigo(codigo) {
   if (!codigo) return;
   try {
     // Buscar produto pelo campo 'codigo'
-    const qsnap = await window.db.collection('produtos').where('codigo', '==', codigo).limit(1).get();
+    const qsnap = await queryByUser(window.db.collection('produtos')).where('codigo', '==', codigo).limit(1).get();
     if (qsnap.empty) {
       showToast('warning', `Produto com código ${codigo} não encontrado no estoque.`);
       updateScannerStatusUI(codigo, 'Não encontrado', null, false);

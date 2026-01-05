@@ -1,0 +1,144 @@
+{
+  "usuario": {
+    "uid": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+    "email": "samukajr82@gmail.com",
+    "dataCriacao": "Wed, 17 Dec 2025 18:32:28 GMT",
+    "ultimoLogin": "Fri, 19 Dec 2025 15:35:15 GMT"
+  },
+  "produtos": [
+    {
+      "id": "qvOyP5J6tg2RA6JRFtXC",
+      "categoria": "outros",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "codigo": "742832414968",
+      "preco": 25,
+      "nome": "Clean´UP",
+      "atualizadoEm": {
+        "seconds": 1766148466,
+        "nanoseconds": 690000000
+      },
+      "estoqueMin": 5,
+      "criadoEm": {
+        "seconds": 1766148466,
+        "nanoseconds": 749000000
+      },
+      "quantidade": 20
+    }
+  ],
+  "vendas": [],
+  "movimentacoes": [],
+  "logs": [
+    {
+      "id": "6IUMrdda8Kdh3bJTqoQv",
+      "acao": "login",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "recurso": "auth",
+      "userEmail": "samukajr82@gmail.com",
+      "timestamp": {
+        "seconds": 1766173270,
+        "nanoseconds": 333000000
+      },
+      "detalhes": {
+        "metodo": "email_password"
+      },
+      "ip": "177.8.168.92"
+    },
+    {
+      "id": "YslCRL3MVsOB54V2aQCe",
+      "userEmail": "samukajr82@gmail.com",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "ip": "177.8.168.92",
+      "detalhes": {
+        "metodo": "email_password"
+      },
+      "acao": "login",
+      "recurso": "auth",
+      "timestamp": {
+        "seconds": 1766173234,
+        "nanoseconds": 965000000
+      },
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+    },
+    {
+      "id": "rruQTYDkvC7xq2JXDDCj",
+      "acao": "login",
+      "userEmail": "samukajr82@gmail.com",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "ip": "177.8.168.92",
+      "recurso": "auth",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "detalhes": {
+        "metodo": "email_password"
+      },
+      "timestamp": {
+        "seconds": 1766172765,
+        "nanoseconds": 291000000
+      }
+    },
+    {
+      "id": "QBfA88zDNQsASM2KeSTE",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "userEmail": "samukajr82@gmail.com",
+      "recurso": "auth",
+      "timestamp": {
+        "seconds": 1766167617,
+        "nanoseconds": 111000000
+      },
+      "acao": "login",
+      "detalhes": {
+        "metodo": "email_password"
+      },
+      "ip": "187.70.3.201",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/146.0  Mobile/15E148 Safari/604.1"
+    },
+    {
+      "id": "IUWpN2Fesi9bu75pKZU1",
+      "detalhes": {
+        "metodo": "email_password"
+      },
+      "recurso": "auth",
+      "ip": "187.70.3.201",
+      "userEmail": "samukajr82@gmail.com",
+      "acao": "login",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/146.0  Mobile/15E148 Safari/604.1",
+      "timestamp": {
+        "seconds": 1766166431,
+        "nanoseconds": 4000000
+      }
+    },
+    {
+      "id": "y3641aFFYYSTI9hWo7Ba",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "ip": "177.8.168.92",
+      "recurso": "politica_privacidade",
+      "timestamp": {
+        "seconds": 1766158523,
+        "nanoseconds": 127000000
+      },
+      "userEmail": "samukajr82@gmail.com",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "detalhes": {
+        "versao": "1.0"
+      },
+      "acao": "aceitar_lgpd"
+    },
+    {
+      "id": "SFT7r7IHmGEP34wWqWZi",
+      "userId": "zDwhGlUThQgvYgwOUZbeBbR1OnJ3",
+      "recurso": "auth",
+      "acao": "login",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      "userEmail": "samukajr82@gmail.com",
+      "timestamp": {
+        "seconds": 1766158521,
+        "nanoseconds": 24000000
+      },
+      "detalhes": {
+        "metodo": "email_password"
+      },
+      "ip": "177.8.168.92"
+    }
+  ]
+}

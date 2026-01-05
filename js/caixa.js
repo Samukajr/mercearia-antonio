@@ -1,5 +1,5 @@
 function carregarMovimentacoes() {
-  window.db.collection('movimentacoes')
+  queryByUser(window.db.collection('movimentacoes'))
     .orderBy('data', 'desc')
     .limit(100)
     .onSnapshot((snap) => {
@@ -35,8 +35,8 @@ function carregarMovimentacoes() {
 
 async function atualizarSaldoCaixa() {
   try {
-    const entradas = await window.db.collection('movimentacoes').where('tipo', '==', 'entrada').get();
-    const saidas = await window.db.collection('movimentacoes').where('tipo', '==', 'saida').get();
+    const entradas = await queryByUser(window.db.collection('movimentacoes')).where('tipo', '==', 'entrada').get();
+    const saidas = await queryByUser(window.db.collection('movimentacoes')).where('tipo', '==', 'saida').get();
     const soma = (snap) => snap.docs.reduce((s, d) => s + (d.data().valor || 0), 0);
     const saldo = soma(entradas) - soma(saidas);
     document.getElementById('saldo-atual').textContent = formatCurrency(saldo);

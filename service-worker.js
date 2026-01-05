@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mercearia-v20';
+const CACHE_NAME = 'mercearia-v21';
 const ASSETS = [
   'index.html',
   'css/styles.css',
@@ -31,6 +31,12 @@ self.addEventListener('activate', (event) => {
 // Estratégia: network-first para documentos HTML; cache-first para estáticos
 self.addEventListener('fetch', (event) => {
   const req = event.request;
+  const url = new URL(req.url);
+
+  // Evita erros com esquemas/verbos não suportados (ex: chrome-extension, POST para token)
+  if (req.method !== 'GET') return;
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
   const isHTML = req.mode === 'navigate' || req.destination === 'document' || (req.headers.get('accept') || '').includes('text/html');
 
   if (isHTML) {

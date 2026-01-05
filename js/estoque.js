@@ -74,7 +74,7 @@ async function salvarProduto(e) {
   try {
     // Validar duplicidade de código (se informado)
     if (dados.codigo) {
-      const dupSnap = await window.db.collection('produtos').where('codigo', '==', dados.codigo).get();
+      const dupSnap = await queryByUser(window.db.collection('produtos')).where('codigo', '==', dados.codigo).get();
       const duplicado = dupSnap.docs.find(d => d.id !== id);
       if (duplicado) {
         showToast('error', 'Já existe produto com este código. Use outro código.');
@@ -351,7 +351,7 @@ async function autoPreencherPorCodigo(codigo) {
       showToast('success', 'Produto pré-preenchido a partir do código. Confirme os dados.');
     } else {
       // Fallback: tentar buscar na própria base pelo campo 'codigo'
-      const qsnap = await window.db.collection('produtos').where('codigo', '==', codigo).limit(1).get();
+      const qsnap = await queryByUser(window.db.collection('produtos')).where('codigo', '==', codigo).limit(1).get();
       if (!qsnap.empty) {
         const prod = qsnap.docs[0].data();
         document.getElementById('produto-nome').value = prod.nome || '';
@@ -452,7 +452,7 @@ async function cadastroRapidoPorCodigo() {
 async function processarCadastroRapido(codigo) {
   try {
     // Verificar se já existe
-    const existente = await window.db.collection('produtos').where('codigo', '==', codigo).get();
+    const existente = await queryByUser(window.db.collection('produtos')).where('codigo', '==', codigo).get();
     if (!existente.empty) {
       showToast('warning', `Produto com código ${codigo} já cadastrado!`);
       return;
@@ -569,7 +569,7 @@ async function ajusteRapidoPorCodigo() {
 
 async function processarAjusteRapido(codigo) {
   try {
-    const qsnap = await window.db.collection('produtos').where('codigo', '==', codigo).limit(1).get();
+    const qsnap = await queryByUser(window.db.collection('produtos')).where('codigo', '==', codigo).limit(1).get();
     if (qsnap.empty) {
       showToast('warning', `Produto com código ${codigo} não encontrado.`);
       return;
@@ -672,7 +672,7 @@ async function atualizacaoRapidaPorCodigo() {
 
 async function processarAtualizacaoRapida(codigo) {
   try {
-    const qsnap = await window.db.collection('produtos').where('codigo', '==', codigo).limit(1).get();
+    const qsnap = await queryByUser(window.db.collection('produtos')).where('codigo', '==', codigo).limit(1).get();
     if (qsnap.empty) {
       showToast('warning', `Produto com código ${codigo} não encontrado.`);
       return;
@@ -953,7 +953,7 @@ async function atualizarCSVEstoqueFromInput(evt) {
     const okHeader = ['nome','codigo','categoria','preco','quantidade','estoqueMin'].every(h => header.includes(h.toLowerCase()));
     if (!okHeader) { showToast('error', 'Cabeçalho inválido. Use o modelo gerado.'); return; }
 
-    const existentesSnap = await window.db.collection('produtos').get();
+    const existentesSnap = await queryByUser(window.db.collection('produtos')).get();
     const idByCodigo = new Map();
     const prevByCodigo = new Map();
     existentesSnap.forEach(d => { const p = d.data(); if (p.codigo) idByCodigo.set(p.codigo, d.id); });
@@ -1054,7 +1054,7 @@ async function ajustarCSVEstoqueFromInput(evt) {
     const okHeader = header.includes('codigo') && header.includes('deltaquantidade');
     if (!okHeader) { showToast('error', 'Cabeçalho inválido. Necessário: codigo,deltaQuantidade'); return; }
 
-    const existentesSnap = await window.db.collection('produtos').get();
+    const existentesSnap = await queryByUser(window.db.collection('produtos')).get();
     const idByCodigo = new Map(); const qtdByCodigo = new Map(); const minByCodigo = new Map();
     existentesSnap.forEach(d => { const p = d.data(); if (p.codigo) { idByCodigo.set(p.codigo, d.id); qtdByCodigo.set(p.codigo, Number(p.quantidade || 0)); minByCodigo.set(p.codigo, Number(p.estoqueMin || 0)); } });
 

@@ -124,10 +124,14 @@
                         <i class="fas fa-user-shield"></i>
                         <span>Privacidade e Dados</span>
                     </a>
-            </nav>
-        </aside>
-
-        <!-- Conteúdo Principal -->
+                <a href="#" class="nav-item" data-section="usuarios" data-permission-required="listar_usuarios" onclick="showSection('usuarios')">
+                    <i class="fas fa-users"></i>
+                    <span>Usuários</span>
+                </a>
+                <a href="#" class="nav-item" data-section="configuracoes" data-role-required="proprietario" onclick="showSection('configuracoes')">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
         <main class="dashboard-content">
             <!-- Seção Dashboard -->
             <section id="section-dashboard" class="content-section active">
@@ -396,6 +400,74 @@
                 </div>
             </section>
 
+            <!-- Seção Usuários -->
+            <section id="section-usuarios" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Gestão de Usuários</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" onclick="mostrarModalNovoUsuario()" data-permission-disable="criar_usuario">
+                            <i class="fas fa-plus"></i> Novo Usuário
+                        </button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table" id="tabela-usuarios">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Nome</th>
+                                        <th>Papel</th>
+                                        <th>Status</th>
+                                        <th>Criado em</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-usuarios">
+                                    <tr>
+                                        <td colspan="6" class="empty-state">Nenhum usuário cadastrado</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção Configurações -->
+            <section id="section-configuracoes" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> Configurações</h2>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Informações da Loja</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="loja-nome">Nome da Loja</label>
+                            <input type="text" id="loja-nome" class="form-control" placeholder="Mercearia do Antonio">
+                        </div>
+                        <div class="form-group">
+                            <label for="loja-cnpj">CNPJ</label>
+                            <input type="text" id="loja-cnpj" class="form-control" placeholder="00.000.000/0000-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="loja-email">Email</label>
+                            <input type="email" id="loja-email" class="form-control" placeholder="contato@mercearia.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="loja-telefone">Telefone</label>
+                            <input type="tel" id="loja-telefone" class="form-control" placeholder="(11) 99999-9999">
+                        </div>
+                        <button class="btn btn-primary" onclick="salvarConfiguracoes()" data-permission-disable="editar_loja">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             <!-- Seção Relatórios -->
             <section id="section-relatorios" class="content-section">
                 <div class="section-header">
@@ -645,8 +717,42 @@
         </div>
     </div>
 
-    <!-- Modal Scanner -->
-    <div id="modal-scanner" class="modal">
+    <!-- Modal Usuário -->
+    <div id="modal-usuario" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-usuario-title">Novo Usuário</h3>
+                <button class="modal-close" onclick="closeModal('modal-usuario')">&times;</button>
+            </div>
+            <form id="form-usuario" class="modal-body">
+                <input type="hidden" id="usuario-id">
+                <div class="form-group">
+                    <label for="usuario-email">Email</label>
+                    <input type="email" id="usuario-email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="usuario-nome">Nome</label>
+                    <input type="text" id="usuario-nome" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="usuario-role">Papel</label>
+                    <select id="usuario-role" class="form-control" required>
+                        <option value="proprietario">Proprietário</option>
+                        <option value="gerente">Gerente</option>
+                        <option value="operador_caixa">Operador de Caixa</option>
+                        <option value="operador_estoque">Operador de Estoque</option>
+                        <option value="viewer">Visualizador</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-usuario')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Scanner -->\n    <div id="modal-scanner" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Leitor de QR/Código de Barras</h3>
@@ -757,9 +863,12 @@
 
     <!-- Scripts -->
     <script src="js/firebase-config.js"></script>
-        <script src="js/firestore-helpers.js"></script>
-        <script src="js/lgpd.js"></script>
-        <script src="js/migration.js"></script>
+    <script src="js/firestore-helpers.js"></script>
+    <script src="js/rbac.js"></script>
+    <script src="js/usuarios.js"></script>
+    <script src="js/configuracoes.js"></script>
+    <script src="js/lgpd.js"></script>
+    <script src="js/migration.js"></script>
     <script src="js/app.js"></script>
     <script src="js/vendas.js"></script>
     <script src="js/estoque.js"></script>

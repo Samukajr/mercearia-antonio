@@ -1,7 +1,7 @@
 async function gerarRelatorioVendas() {
   const periodo = document.getElementById('periodo-vendas').value;
   const range = obterRangePeriodo(periodo);
-  const snap = await window.db.collection('vendas')
+  const snap = await queryByUser(window.db.collection('vendas'))
     .where('data', '>=', range.inicio)
     .where('data', '<=', range.fim)
     .get();
@@ -61,7 +61,7 @@ function obterRangePeriodo(tipo) {
 }
 
 async function carregarRankingProdutos() {
-  const snap = await window.db.collection('vendas').get();
+  const snap = await queryByUser(window.db.collection('vendas')).get();
   const mapa = new Map();
   snap.forEach((d) => {
     const itens = d.data().itens || [];
@@ -100,9 +100,8 @@ window.exportarMovimentacoesCSV = exportarMovimentacoesCSV;
 
 async function exportarProdutosCSV() {
   try {
-    const snap = await window.db.collection('produtos').orderBy('nome').get();
-      const linhas = ['nome,categoria,preco,quantidade,estoqueMin'];
-      const produtosSnap = await queryByUser(window.db.collection('produtos')).get();
+    const snap = await queryByUser(window.db.collection('produtos')).orderBy('nome').get();
+    const linhas = ['nome,categoria,preco,quantidade,estoqueMin'];
     snap.forEach((d) => {
       const p = d.data();
       const linha = [
@@ -124,7 +123,7 @@ async function exportarProdutosCSV() {
 
 async function exportarMovimentacoesCSV() {
   try {
-    const snap = await window.db.collection('movimentacoes').orderBy('data', 'desc').get();
+    const snap = await queryByUser(window.db.collection('movimentacoes')).orderBy('data', 'desc').get();
     const linhas = ['data,tipo,descricao,valor'];
     snap.forEach((d) => {
       const m = d.data();

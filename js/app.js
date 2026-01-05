@@ -57,7 +57,7 @@ function logout() {
 }
 
 // Estado de autenticação
-window.auth.onAuthStateChanged((user) => {
+window.auth.onAuthStateChanged(async (user) => {
   const loginScreen = document.getElementById('login-screen');
   const dashboardScreen = document.getElementById('dashboard-screen');
   const userName = document.getElementById('user-name');
@@ -65,11 +65,26 @@ window.auth.onAuthStateChanged((user) => {
     loginScreen.classList.remove('active');
     dashboardScreen.classList.add('active');
     userName.textContent = user.email || 'Antonio';
+    
+    // Aplicar controle de permissões na UI
+    await applyPermissionVisibility();
+    
     showSection('dashboard');
     atualizarDataAtual();
     carregarEstoque();
     carregarMovimentacoes();
     carregarVendasRecentes();
+    
+    // Carregar configurações
+    if (window.carregarConfiguracoes) {
+      await carregarConfiguracoes();
+    }
+    
+    // Carregar usuários (se houver permissão)
+    if (window.renderizarTabelaUsuarios && await hasPermission('listar_usuarios')) {
+      await renderizarTabelaUsuarios();
+    }
+    
     // Pré-carregar lista de produtos para a tela de venda
     if (window.carregarProdutosVenda) {
       window.carregarProdutosVenda();
@@ -107,7 +122,7 @@ function atualizarDataAtual() {
 // Atualizar cards do dashboard
 async function atualizarCardsDashboard() {
   try {
-    const produtosSnap = await window.db.collection('produtos').get();
+    const produtosSnap = await queryByUser(window.db.collection('produtos')).get();
     const totalProdutos = produtosSnap.size;
     let baixo = 0;
     produtosSnap.forEach((d) => {
@@ -120,15 +135,15 @@ async function atualizarCardsDashboard() {
     if (baixoEl) baixoEl.textContent = String(baixo);
 
     const inicio = new Date(); inicio.setHours(0,0,0,0);
-    const vendasHojeSnap = await window.db.collection('vendas')
+    const vendasHojeSnap = await queryByUser(window.db.collection('vendas'))
       .where('data', '>=', inicio)
       .get();
     const totalHoje = vendasHojeSnap.docs.reduce((s, d) => s + (d.data().total || 0), 0);
     const vendasHojeEl = document.getElementById('vendas-hoje');
     if (vendasHojeEl) vendasHojeEl.textContent = formatCurrency(totalHoje);
 
-    const entradas = await window.db.collection('movimentacoes').where('tipo', '==', 'entrada').get();
-    const saidas = await window.db.collection('movimentacoes').where('tipo', '==', 'saida').get();
+    const entradas = await queryByUser(window.db.collection('movimentacoes')).where('tipo', '==', 'entrada').get();
+    const saidas = await queryByUser(window.db.collection('movimentacoes')).where('tipo', '==', 'saida').get();
     const soma = (snap) => snap.docs.reduce((s, d) => s + (d.data().valor || 0), 0);
     const saldo = soma(entradas) - soma(saidas);
     const saldoEl = document.getElementById('saldo-caixa');
