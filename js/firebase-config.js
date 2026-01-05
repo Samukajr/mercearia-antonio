@@ -58,7 +58,7 @@ firebase.initializeApp(window.firebaseConfig);
 
 window.auth = firebase.auth();
 window.db = firebase.firestore();
-window.functions = firebase.functions('us-central1');  // Mesma região da Cloud Function
+window.functions = firebase.functions();  // Cloud Functions
 
 // Registro do Service Worker
 if ('serviceWorker' in navigator) {
