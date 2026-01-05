@@ -211,19 +211,17 @@ body {
    ======================================== */
 
 .dashboard-content {
+    display: block;
+    width: calc(100% - 260px);
+    height: 100vh;
     margin-left: 260px;
     margin-top: 70px;
     padding: 1.5rem 2rem;
-    min-height: calc(100vh - 70px);
     background: #f8f9fa;
-    width: calc(100% - 260px);
+    overflow-y: scroll;
+    overflow-x: hidden;
     position: relative;
     z-index: 1;
-    display: block;
-    box-sizing: border-box;
-    overflow-y: auto;
-    overflow-x: hidden;
-    flex-grow: 1;
 }
 
 @media (max-width: 768px) {
@@ -275,16 +273,10 @@ body {
 
 .content-section {
     display: none;
-    width: 100%;
-    opacity: 0;
-    visibility: hidden;
 }
 
 .content-section.active {
-    display: block;
-    opacity: 1;
-    visibility: visible;
-    animation: fadeIn 0.3s ease;
+    display: block !important;
 }
 
 @keyframes fadeIn {
