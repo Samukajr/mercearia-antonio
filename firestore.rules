@@ -1,54 +1,91 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Regras multi-tenant: cada usuário acessa apenas seus próprios dados
     
-    // Produtos
+    // Função auxiliar para obter role do usuário
+    function getUserRole() {
+      return request.auth.token.role;
+    }
+    
+    // Função auxiliar para verificar se é proprietário
+    function isProprietario() {
+      return getUserRole() == 'proprietario';
+    }
+    
+    // Função auxiliar para verificar se é gerente ou superior
+    function isGerenteOuSuperior() {
+      return getUserRole() in ['proprietario', 'gerente'];
+    }
+    
+    // Produtos - todos podem ler, apenas gerente+ pode editar
     match /produtos/{produtoId} {
-      // Atualização permitida se o documento já pertence ao usuário OU se ainda não tem userId e o usuário está definindo-o corretamente
-      allow read, write: if request.auth != null && (
-                            request.auth.uid == resource.data.userId ||
-                            (!resource.data.userId && request.auth.uid == request.resource.data.userId)
-                          );
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && 
-                       request.auth.uid == request.resource.data.userId;
+                       request.auth.uid == request.resource.data.userId &&
+                       getUserRole() in ['proprietario', 'gerente', 'operador_estoque'];
+      allow update: if request.auth != null && 
+                       request.auth.uid == resource.data.userId &&
+                       getUserRole() in ['proprietario', 'gerente', 'operador_estoque'];
+      allow delete: if request.auth != null && 
+                       request.auth.uid == resource.data.userId &&
+                       isGerenteOuSuperior();
     }
     
     // Vendas
     match /vendas/{vendaId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update, delete: if false; // vendas não devem ser alteradas
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId &&
+                       getUserRole() in ['proprietario', 'gerente', 'operador_caixa'];
+      allow update: if request.auth != null && 
+                       request.auth.uid == resource.data.userId &&
+                       isGerenteOuSuperior();
+      allow delete: if request.auth != null && 
+                       request.auth.uid == resource.data.userId &&
+                       isProprietario();
     }
     
     // Movimentações de caixa
-    match /movimentacoes/{movId} {
+    match /movimentacoes/{movimentacaoId} {
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && 
+                       request.auth.uid == request.resource.data.userId &&
+                       getUserRole() in ['proprietario', 'gerente', 'operador_caixa'];
+      allow update: if request.auth != null && 
+                       request.auth.uid == resource.data.userId &&
+                       isGerenteOuSuperior();
+      allow delete: if request.auth != null && 
+                       request.auth.uid == resource.data.userId &&
+                       isGerenteOuSuperior();
     }
     
-    // Logs de auditoria - usuário pode ler apenas seus próprios logs
+    // Usuários - apenas proprietário pode gerenciar
+    match /usuarios/{usuarioId} {
+      allow read: if request.auth != null && 
+                     (request.auth.uid == resource.data.userId || isProprietario());
+      allow create: if request.auth != null && isProprietario();
+      allow update: if request.auth != null && 
+                       (request.auth.uid == resource.data.userId || isProprietario());
+      allow delete: if request.auth != null && isProprietario();
+    }
+    
+    // Configurações da loja - apenas proprietário
+    match /configuracoes/{configId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow write: if request.auth != null && 
+                      request.auth.uid == resource.data.userId && 
+                      isProprietario();
+    }
+    
+    // Audit logs - apenas leitura para proprietário
     match /auditLogs/{logId} {
-      allow read: if request.auth != null && 
-                     request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && 
-                       request.auth.uid == request.resource.data.userId;
-      allow update, delete: if false; // Logs são imutáveis
+      allow read: if request.auth != null && isProprietario();
+      allow create: if request.auth != null;
     }
     
-    // Consentimentos LGPD - usuário pode criar e ler apenas seus próprios
-    match /lgpdConsents/{consentId} {
-      allow read: if request.auth != null && 
-                     request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && 
-                       request.auth.uid == request.resource.data.userId;
-      allow update, delete: if false; // Consentimentos são imutáveis
-    }
-    
-    // Bloquear tudo que não está explicitamente permitido
-    match /{document=**} {
-      allow read, write: if false;
+    // Backups - apenas proprietário
+    match /backups/{backupId} {
+      allow read, write: if request.auth != null && isProprietario();
     }
   }
 }
