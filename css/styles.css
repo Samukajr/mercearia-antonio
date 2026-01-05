@@ -325,7 +325,9 @@ body {
 
 .section-actions {
     display: flex;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 .date-display {
