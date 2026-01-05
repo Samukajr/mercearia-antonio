@@ -71,6 +71,7 @@ window.auth.onAuthStateChanged(async (user) => {
   const dashboardScreen = document.getElementById('dashboard-screen');
   const userName = document.getElementById('user-name');
   if (user) {
+    console.log('✅ Usuário autenticado:', user.email);
     loginScreen.classList.remove('active');
     dashboardScreen.classList.add('active');
     userName.textContent = user.email || 'Antonio';
