@@ -31,29 +31,79 @@ async function criarUsuario(email, senha, nome, role) {
       return false;
     }
 
-    // Criar usuário no Firebase Auth via Admin SDK (via Callable Function)
-    // Por enquanto, criamos um documento no Firestore com status pending
+    // Validar campos obrigatórios
+    if (!email || !senha || !nome) {
+      showToast('error', 'Email, senha e nome são obrigatórios.');
+      return false;
+    }
+
+    // Tentar criar via Cloud Function (se disponível)
+    // Caso contrário, criar apenas no Firestore
+    const email_lower = email.toLowerCase();
+    let criadoComCloudFunction = false;
+    let novoUsuarioId = null;
+
+    try {
+      // Verificar se Cloud Function existe
+      const createUserFn = firebase.functions().httpsCallable('createUserWithRole');
+      const resultado = await createUserFn({
+        email: email_lower,
+        password: senha,
+        name: nome.trim(),
+        role: role
+      });
+
+      if (resultado.data && resultado.data.success) {
+        novoUsuarioId = resultado.data.uid;
+        criadoComCloudFunction = true;
+        showToast('success', `Usuário ${email_lower} criado com sucesso no Firebase Auth!`);
+      }
+    } catch (fnErr) {
+      // Cloud Function não disponível ainda (normal antes do deploy)
+      console.warn('Cloud Function não está disponível. Criando apenas no Firestore.', fnErr.message);
+      
+      // Criar usuário apenas no Firestore com status "pendente"
+      // O usuário será criado no Firebase Auth via Admin Dashboard ou depois
+    }
+
+    // Criar documento no Firestore
     const userData = {
       userId: getUserId(), // proprietário que criou
-      email: email.toLowerCase(),
+      email: email_lower,
       nome: nome.trim(),
       role: role,
-      status: 'pendente', // Aguardando aceitação de convite
+      status: criadoComCloudFunction ? 'ativo' : 'pendente',
       criadoEm: firebase.firestore.Timestamp.now(),
       criadoPor: window.auth.currentUser.email,
       atualizadoEm: firebase.firestore.Timestamp.now()
     };
 
-    const docRef = await window.db.collection('usuarios').add(userData);
+    // Se foi criado via Cloud Function, usar UID do Auth
+    let docRef;
+    if (novoUsuarioId) {
+      await window.db.collection('usuarios').doc(novoUsuarioId).set(userData);
+      docRef = { id: novoUsuarioId };
+    } else {
+      docRef = await window.db.collection('usuarios').add(userData);
+    }
     
     // Registrar auditoria
-    await registrarAuditoria('criar_usuario', 'usuarios', { email, role, docId: docRef.id });
+    await registrarAuditoria('criar_usuario', 'usuarios', { 
+      email: email_lower, 
+      role, 
+      docId: docRef.id,
+      viaPCP: criadoComCloudFunction ? 'CloudFunction' : 'Firestore'
+    });
     
-    showToast('success', `Usuário ${email} criado com role ${role}. Aguardando aceitação.`);
+    const msg = criadoComCloudFunction 
+      ? `Usuário ${email_lower} criado com role ${role}.`
+      : `Usuário ${email_lower} criado (pendente). Deploy da Cloud Function para ativar.`;
+    
+    showToast('success', msg);
     return true;
   } catch (err) {
     console.error('Erro ao criar usuário', err);
-    showToast('error', 'Erro ao criar usuário.');
+    showToast('error', `Erro ao criar usuário: ${err.message}`);
     return false;
   }
 }
