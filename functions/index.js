@@ -24,14 +24,20 @@ exports.setUserRole = functions.https.onCall(async (data, context) => {
     );
   }
 
-  const { uid, role } = data;
+  // Aceitar ambos os formatos: { uid, role } ou { role } (self-assign)
+  let { uid, role } = data;
   const callerUid = context.auth.uid;
+  
+  // Se não passou uid, usar o próprio usuário
+  if (!uid) {
+    uid = callerUid;
+  }
 
   // Validação de entrada
-  if (!uid || !role) {
+  if (!role) {
     throw new functions.https.HttpsError(
       'invalid-argument',
-      'uid e role são obrigatórios.'
+      'role é obrigatório.'
     );
   }
 
@@ -44,25 +50,27 @@ exports.setUserRole = functions.https.onCall(async (data, context) => {
   }
 
   try {
-    // Verificar permissão: apenas proprietário pode atribuir roles
-    const callerDoc = await db.collection('usuarios').where('email', '==', context.auth.token.email).limit(1).get();
-    
-    if (callerDoc.empty) {
-      // Se for o primeiro usuário (setup inicial), permitir
-      const usersCount = await db.collection('usuarios').limit(1).get();
-      if (usersCount.size > 0) {
-        throw new functions.https.HttpsError(
-          'permission-denied',
-          'Você não tem permissão para atribuir roles.'
-        );
-      }
-    } else {
-      const caller = callerDoc.docs[0].data();
-      if (caller.role !== 'proprietario') {
-        throw new functions.https.HttpsError(
-          'permission-denied',
-          'Apenas proprietários podem atribuir roles.'
-        );
+    // Se não é self-assign, verificar permissão
+    if (uid !== callerUid) {
+      const callerDoc = await db.collection('usuarios').where('email', '==', context.auth.token.email).limit(1).get();
+      
+      if (callerDoc.empty) {
+        // Se for o primeiro usuário (setup inicial), permitir
+        const usersCount = await db.collection('usuarios').limit(1).get();
+        if (usersCount.size > 0) {
+          throw new functions.https.HttpsError(
+            'permission-denied',
+            'Você não tem permissão para atribuir roles.'
+          );
+        }
+      } else {
+        const caller = callerDoc.docs[0].data();
+        if (caller.role !== 'proprietario') {
+          throw new functions.https.HttpsError(
+            'permission-denied',
+            'Apenas proprietários podem atribuir roles.'
+          );
+        }
       }
     }
 
