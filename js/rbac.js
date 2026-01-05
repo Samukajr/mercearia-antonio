@@ -220,12 +220,15 @@ async function protectAction(permissionName, actionFn) {
 // Mostrar/Ocultar elementos conforme permissão
 async function applyPermissionVisibility() {
   const role = await getUserRole();
+  console.log('📋 RBAC DEBUG - Current role:', role);
   
   // Elementos com data-permission-required
   document.querySelectorAll('[data-permission-required]').forEach(el => {
     const requiredPerms = el.getAttribute('data-permission-required').split(',');
     const permissions = rolePermissions[role] || {};
     const hasAccess = requiredPerms.some(p => permissions[p.trim()] === true);
+    const text = el.textContent.trim();
+    console.log(`  ${text}: required=[${requiredPerms}], hasAccess=${hasAccess}`);
     el.style.display = hasAccess ? '' : 'none';
   });
   
@@ -233,6 +236,8 @@ async function applyPermissionVisibility() {
   document.querySelectorAll('[data-role-required]').forEach(el => {
     const requiredRoles = el.getAttribute('data-role-required').split(',');
     const hasRole = requiredRoles.includes(role);
+    const text = el.textContent.trim();
+    console.log(`  ${text}: required=[${requiredRoles}], hasRole=${hasRole}`);
     el.style.display = hasRole ? '' : 'none';
   });
   
