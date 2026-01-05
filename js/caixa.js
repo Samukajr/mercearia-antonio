@@ -1,5 +1,10 @@
+let unlistenerCaixa = null;
+
 function carregarMovimentacoes() {
-  queryByUser(window.db.collection('movimentacoes'))
+  // Parar listener anterior se existir
+  if (unlistenerCaixa) unlistenerCaixa();
+  
+  unlistenerCaixa = queryByUser(window.db.collection('movimentacoes'))
     .orderBy('data', 'desc')
     .limit(100)
     .onSnapshot((snap) => {
@@ -84,6 +89,11 @@ async function excluirMov(id) {
     showToast('error', 'Erro ao excluir movimentação');
   }
 }
+
+// Parar listener do caixa
+window.unlistenerCaixa = () => {
+  if (unlistenerCaixa) unlistenerCaixa();
+};
 
 // Expor globais
 window.carregarMovimentacoes = carregarMovimentacoes;

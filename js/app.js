@@ -54,15 +54,42 @@ if (loginForm) {
 
 function logout() {
   try {
-    // Desabilitar listeners (se existirem)
-    if (window.unlistenerEstoque) window.unlistenerEstoque();
-    if (window.unlistenerCaixa) window.unlistenerCaixa();
-    if (window.unlistenerVendas) window.unlistenerVendas();
+    console.log('🔌 Desconectando listeners...');
+    // Desabilitar listeners (se existirem) - wrap em try/catch individual
+    try {
+      if (window.unlistenerEstoque && typeof window.unlistenerEstoque === 'function') {
+        window.unlistenerEstoque();
+        console.log('✅ Listener estoque desconectado');
+      }
+    } catch (e) {
+      console.warn('⚠️ Erro ao desabilitar listener estoque:', e);
+    }
+    
+    try {
+      if (window.unlistenerCaixa && typeof window.unlistenerCaixa === 'function') {
+        window.unlistenerCaixa();
+        console.log('✅ Listener caixa desconectado');
+      }
+    } catch (e) {
+      console.warn('⚠️ Erro ao desabilitar listener caixa:', e);
+    }
+    
+    try {
+      if (window.unlistenerVendas && typeof window.unlistenerVendas === 'function') {
+        window.unlistenerVendas();
+        console.log('✅ Listener vendas desconectado');
+      }
+    } catch (e) {
+      console.warn('⚠️ Erro ao desabilitar listener vendas:', e);
+    }
+    
+    console.log('🔌 Desconectando do Firebase...');
+    window.auth.signOut();
+    console.log('✅ Desconectado com sucesso');
   } catch (e) {
-    console.warn('Erro ao desabilitar listeners:', e);
+    console.error('❌ Erro geral ao deslogar:', e);
+    showToast('error', 'Erro ao deslogar');
   }
-  
-  window.auth.signOut();
 }
 
 // Estado de autenticação

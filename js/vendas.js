@@ -1,7 +1,11 @@
 let carrinho = [];
+let unlistenerVendas = null;
 
 function carregarVendasRecentes() {
-  queryByUser(window.db.collection('vendas'))
+  // Parar listener anterior se existir
+  if (unlistenerVendas) unlistenerVendas();
+  
+  unlistenerVendas = queryByUser(window.db.collection('vendas'))
     .where('data', '>=', inicioDoDia())
     .orderBy('data', 'desc')
     .limit(20)
@@ -187,6 +191,11 @@ async function finalizarVenda() {
     showToast('error', 'Erro ao registrar venda.');
   }
 }
+
+// Parar listener de vendas
+window.unlistenerVendas = () => {
+  if (unlistenerVendas) unlistenerVendas();
+};
 
 // Expor globais
 window.carregarProdutosVenda = carregarProdutosVenda;
