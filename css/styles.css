@@ -216,6 +216,9 @@ body {
     padding: 1.5rem 2rem;
     min-height: calc(100vh - 70px);
     background: var(--light-bg);
+    width: calc(100% - 260px);
+    position: relative;
+    z-index: 1;
 }
 
 @media (max-width: 768px) {
@@ -267,11 +270,15 @@ body {
 
 .content-section {
     display: none;
+    width: 100%;
+    position: relative;
 }
 
 .content-section.active {
-    display: block;
+    display: block !important;
     animation: fadeIn 0.3s ease;
+    opacity: 1;
+    visibility: visible;
 }
 
 @keyframes fadeIn {
