@@ -10,20 +10,12 @@ function toggleSidebar() {
 }
 
 function showSection(section) {
-  console.log('🔍 showSection chamada com:', section);
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
   const link = document.querySelector(`.nav-item[data-section="${section}"]`);
   const el = document.getElementById(`section-${section}`);
-  console.log('  Link encontrado:', link ? 'SIM' : 'NÃO');
-  console.log('  Seção encontrada:', el ? 'SIM' : 'NÃO');
   if (link) link.classList.add('active');
-  if (el) {
-    el.classList.add('active');
-    console.log('  ✅ Seção ativada:', section);
-  } else {
-    console.error('  ❌ Seção não encontrada:', `section-${section}`);
-  }
+  if (el) el.classList.add('active');
 }
 
 function showToast(type, message) {
