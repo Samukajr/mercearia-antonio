@@ -53,6 +53,15 @@ if (loginForm) {
 }
 
 function logout() {
+  try {
+    // Desabilitar listeners (se existirem)
+    if (window.unlistenerEstoque) window.unlistenerEstoque();
+    if (window.unlistenerCaixa) window.unlistenerCaixa();
+    if (window.unlistenerVendas) window.unlistenerVendas();
+  } catch (e) {
+    console.warn('Erro ao desabilitar listeners:', e);
+  }
+  
   window.auth.signOut();
 }
 

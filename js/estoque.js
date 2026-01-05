@@ -1,6 +1,8 @@
+let unlistenerEstoque = null;
+
 function carregarEstoque() {
   const ref = window.db.collection('produtos');
-  queryByUser(ref).orderBy('nome').onSnapshot((snap) => {
+  unlistenerEstoque = queryByUser(ref).orderBy('nome').onSnapshot((snap) => {
     const tbody = document.getElementById('tbody-estoque');
     tbody.innerHTML = '';
     if (snap.empty) {
@@ -34,6 +36,10 @@ function carregarEstoque() {
     }
   });
 }
+
+window.unlistenerEstoque = () => {
+  if (unlistenerEstoque) unlistenerEstoque();
+};
 
 function showModalProduto() {
   document.getElementById('modal-produto-title').textContent = 'Novo Produto';
