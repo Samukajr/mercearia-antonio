@@ -66,6 +66,21 @@ window.auth.onAuthStateChanged(async (user) => {
     dashboardScreen.classList.add('active');
     userName.textContent = user.email || 'Antonio';
     
+    // Setup automático: se não tem role, atribuir proprietario (primeiro usuário)
+    try {
+      const idTokenResult = await user.getIdTokenResult();
+      if (!idTokenResult.claims.role) {
+        console.log('⚠️ Usuário sem role detectado. Atribuindo role proprietario...');
+        const setUserRole = firebase.functions().httpsCallable('setUserRole');
+        await setUserRole({ role: 'proprietario' });
+        console.log('✅ Role proprietario atribuído com sucesso!');
+        // Forçar refresh do token
+        await user.getIdTokenResult(true);
+      }
+    } catch (err) {
+      console.warn('Erro ao verificar/atribuir role:', err);
+    }
+    
     // Aplicar controle de permissões na UI
     await applyPermissionVisibility();
     
