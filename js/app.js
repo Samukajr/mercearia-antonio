@@ -76,6 +76,8 @@ window.auth.onAuthStateChanged(async (user) => {
         console.log('✅ Role proprietario atribuído com sucesso!');
         // Forçar refresh do token
         await user.getIdTokenResult(true);
+        // Reaplicar permissões após atribuir role
+        await applyPermissionVisibility();
       }
     } catch (err) {
       console.warn('Erro ao verificar/atribuir role:', err);
