@@ -215,14 +215,15 @@ body {
     margin-top: 70px;
     padding: 1.5rem 2rem;
     min-height: calc(100vh - 70px);
-    background: var(--light-bg);
+    background: #f8f9fa;
     width: calc(100% - 260px);
     position: relative;
     z-index: 1;
-    display: block !important;
+    display: block;
     box-sizing: border-box;
     overflow-y: auto;
     overflow-x: hidden;
+    flex-grow: 1;
 }
 
 @media (max-width: 768px) {
@@ -273,17 +274,16 @@ body {
 }
 
 .content-section {
-    display: none !important;
+    display: none;
     width: 100%;
-    position: relative;
     opacity: 0;
     visibility: hidden;
 }
 
 .content-section.active {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+    display: block;
+    opacity: 1;
+    visibility: visible;
     animation: fadeIn 0.3s ease;
 }
 
