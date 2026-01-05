@@ -17,9 +17,10 @@ service cloud.firestore {
       return getUserRole() in ['proprietario', 'gerente'];
     }
     
-    // Produtos - todos podem ler, apenas gerente+ pode editar
+    // Produtos - todos podem ler seus próprios produtos
     match /produtos/{produtoId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read: if request.auth != null && 
+                     (resource == null || request.auth.uid == resource.data.userId);
       allow create: if request.auth != null && 
                        request.auth.uid == request.resource.data.userId &&
                        getUserRole() in ['proprietario', 'gerente', 'operador_estoque'];
@@ -33,7 +34,8 @@ service cloud.firestore {
     
     // Vendas
     match /vendas/{vendaId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read: if request.auth != null && 
+                     (resource == null || request.auth.uid == resource.data.userId);
       allow create: if request.auth != null && 
                        request.auth.uid == request.resource.data.userId &&
                        getUserRole() in ['proprietario', 'gerente', 'operador_caixa'];
@@ -47,7 +49,8 @@ service cloud.firestore {
     
     // Movimentações de caixa
     match /movimentacoes/{movimentacaoId} {
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read: if request.auth != null && 
+                     (resource == null || request.auth.uid == resource.data.userId);
       allow create: if request.auth != null && 
                        request.auth.uid == request.resource.data.userId &&
                        getUserRole() in ['proprietario', 'gerente', 'operador_caixa'];
