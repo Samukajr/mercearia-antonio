@@ -219,6 +219,10 @@ body {
     width: calc(100% - 260px);
     position: relative;
     z-index: 1;
+    display: block !important;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
@@ -269,16 +273,18 @@ body {
 }
 
 .content-section {
-    display: none;
+    display: none !important;
     width: 100%;
     position: relative;
+    opacity: 0;
+    visibility: hidden;
 }
 
 .content-section.active {
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
     animation: fadeIn 0.3s ease;
-    opacity: 1;
-    visibility: visible;
 }
 
 @keyframes fadeIn {
