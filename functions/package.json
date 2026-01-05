@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "Mercearia do Antonio",
   "engines": {
-    "node": "18"
+    "node": "20"
   },
   "dependencies": {
     "firebase-admin": "^12.0.0",
