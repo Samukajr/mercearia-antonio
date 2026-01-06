@@ -19,6 +19,8 @@ async function listarUsuarios() {
 
 async function criarUsuario(email, senha, nome, role) {
   try {
+    console.log('🔍 criarUsuario - Recebido:', { email, senha: '***', nome, role });
+
     // Validar permissão
     if (!await hasPermission('criar_usuario')) {
       showToast('error', 'Você não tem permissão para criar usuários.');
@@ -31,9 +33,11 @@ async function criarUsuario(email, senha, nome, role) {
       return false;
     }
 
-    // Validar campos obrigatórios
-    if (!email || !senha || !nome) {
-      showToast('error', 'Email, senha e nome são obrigatórios.');
+    // Validar campos obrigatórios - email e nome são obrigatórios
+    // senha é opcional se usando Cloud Function (será gerada automática)
+    if (!email || !nome) {
+      console.error('❌ Campos obrigatórios faltando:', { email: !!email, nome: !!nome });
+      showToast('error', 'Email e nome são obrigatórios.');
       return false;
     }
 
@@ -44,23 +48,29 @@ async function criarUsuario(email, senha, nome, role) {
     let novoUsuarioId = null;
 
     try {
-      // Verificar se Cloud Function existe
-      const createUserFn = firebase.functions().httpsCallable('createUserWithRole');
-      const resultado = await createUserFn({
-        email: email_lower,
-        password: senha,
-        name: nome.trim(),
-        role: role
-      });
+      // Se temos senha, usar Cloud Function
+      if (senha && senha.trim()) {
+        console.log('📞 Tentando criar via Cloud Function com senha...');
+        const createUserFn = firebase.functions().httpsCallable('createUserWithRole');
+        const resultado = await createUserFn({
+          email: email_lower,
+          password: senha,
+          name: nome.trim(),
+          role: role
+        });
 
-      if (resultado.data && resultado.data.success) {
-        novoUsuarioId = resultado.data.uid;
-        criadoComCloudFunction = true;
-        showToast('success', `Usuário ${email_lower} criado com sucesso no Firebase Auth!`);
+        if (resultado.data && resultado.data.success) {
+          novoUsuarioId = resultado.data.uid;
+          criadoComCloudFunction = true;
+          console.log('✅ Criado via Cloud Function, UID:', novoUsuarioId);
+          showToast('success', `Usuário ${email_lower} criado com sucesso no Firebase Auth!`);
+        }
+      } else {
+        console.log('📝 Sem senha - criando apenas no Firestore (pendente)');
       }
     } catch (fnErr) {
       // Cloud Function não disponível ainda (normal antes do deploy)
-      console.warn('Cloud Function não está disponível. Criando apenas no Firestore.', fnErr.message);
+      console.warn('⚠️ Cloud Function não está disponível. Criando apenas no Firestore.', fnErr.message);
       
       // Criar usuário apenas no Firestore com status "pendente"
       // O usuário será criado no Firebase Auth via Admin Dashboard ou depois
@@ -83,8 +93,10 @@ async function criarUsuario(email, senha, nome, role) {
     if (novoUsuarioId) {
       await window.db.collection('usuarios').doc(novoUsuarioId).set(userData);
       docRef = { id: novoUsuarioId };
+      console.log('✅ Documento criado no Firestore com UID:', novoUsuarioId);
     } else {
       docRef = await window.db.collection('usuarios').add(userData);
+      console.log('✅ Documento criado no Firestore:', docRef.id);
     }
     
     // Registrar auditoria
@@ -97,12 +109,13 @@ async function criarUsuario(email, senha, nome, role) {
     
     const msg = criadoComCloudFunction 
       ? `Usuário ${email_lower} criado com role ${role}.`
-      : `Usuário ${email_lower} criado (pendente). Deploy da Cloud Function para ativar.`;
+      : `Usuário ${email_lower} criado (pendente). Defina uma senha para ativar.`;
     
+    console.log('📢 Sucesso:', msg);
     showToast('success', msg);
     return true;
   } catch (err) {
-    console.error('Erro ao criar usuário', err);
+    console.error('❌ Erro ao criar usuário', err);
     showToast('error', `Erro ao criar usuário: ${err.message}`);
     return false;
   }
@@ -259,21 +272,42 @@ document.addEventListener('DOMContentLoaded', () => {
       const nome = document.getElementById('usuario-nome').value.trim();
       const role = document.getElementById('usuario-role').value;
 
+      console.log('📋 Form Submit - Debug:', {
+        usuarioId,
+        email,
+        nome,
+        role,
+        roleElement: document.getElementById('usuario-role'),
+        roleValue: document.getElementById('usuario-role')?.value,
+        isEmpty: {
+          email: !email,
+          nome: !nome,
+          role: !role
+        }
+      });
+
       if (!email || !nome || !role) {
-        showToast('error', 'Preencha todos os campos.');
+        console.error('❌ Validação falhou:', { email: !!email, nome: !!nome, role: !!role });
+        showToast('error', 'Email, senha e nome são obrigatórios.');
         return;
       }
 
-      if (usuarioId) {
-        // Editar
-        await atualizarUsuario(usuarioId, { nome, role });
-      } else {
-        // Criar
-        await criarUsuario(email, '', nome, role);
-      }
+      try {
+        if (usuarioId) {
+          // Editar
+          console.log('✏️ Atualizando usuário:', usuarioId);
+          await atualizarUsuario(usuarioId, { nome, role });
+        } else {
+          // Criar
+          console.log('➕ Criando novo usuário:', email);
+          await criarUsuario(email, '', nome, role);
+        }
 
-      closeModal('modal-usuario');
-      await renderizarTabelaUsuarios();
+        closeModal('modal-usuario');
+        await renderizarTabelaUsuarios();
+      } catch (err) {
+        console.error('❌ Erro ao salvar usuário:', err);
+      }
     });
   }
 });
