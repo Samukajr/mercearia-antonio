@@ -199,28 +199,18 @@ async function deletarUsuario(usuarioId) {
       return false;
     }
 
-    console.log('🗑️ DELETANDO usuário:', usuarioId);
-    alert('DEBUG: Iniciando delete de ' + usuarioId);
+    console.log('🗑️ Deletando usuário:', usuarioId);
 
     // Delete definitivo
     await window.db.collection('usuarios').doc(usuarioId).delete();
-    console.log('✅ DOCUMENTO REMOVIDO DO FIRESTORE');
-    alert('DEBUG: Delete executado, verificando se existe...');
-
-    // Verificar se ainda existe (server)
-    const docCheck = await window.db.collection('usuarios').doc(usuarioId).get({ source: 'server' });
-    console.log('🔍 EXISTE APÓS DELETE?', docCheck.exists);
-    alert('DEBUG: Existe após delete? ' + docCheck.exists);
+    console.log('✅ Documento removido do Firestore');
 
     await registrarAuditoria('deletar_usuario', 'usuarios', { usuarioId });
     
     showToast('success', 'Usuário deletado com sucesso!');
     
-    // Limpar cache e atualizar a tabela
-    await window.db.clearPersistence().catch(() => console.warn('Cache já em uso'));
-    await new Promise(r => setTimeout(r, 100));
+    // Atualizar a tabela imediatamente
     await renderizarTabelaUsuarios();
-    console.log('🔄 TABELA RENDERIZADA APÓS DELETE');
     
     return true;
   } catch (err) {
@@ -243,9 +233,7 @@ async function renderizarTabelaUsuarios() {
   try {
     // Garantir que não exibimos deletados mesmo se vierem do fallback (mantido para segurança)
     const usuarios = (await listarUsuarios()).filter(u => u.deletado !== true && u.status !== 'deletado');
-    console.log('📋 RENDERIZANDO', usuarios.length, 'USUARIOS');
-    console.log('📋 IDs:', usuarios.map(u => u.id));
-    console.log('📋 Emails:', usuarios.map(u => u.email));
+    console.log('📋 Usuários carregados:', usuarios.length);
     tbody.innerHTML = '';
 
     if (usuarios.length === 0) {
