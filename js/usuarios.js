@@ -3,6 +3,16 @@
 // Criar, editar, deletar usuários e atribuir roles
 // ===========================
 
+// Gerar senha temporária aleatória
+function gerarSenhaTemporaria(length = 10) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+  let senha = '';
+  for (let i = 0; i < length; i++) {
+    senha += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return senha;
+}
+
 async function listarUsuarios() {
   try {
     const snap = await window.db.collection('usuarios').where('userId', '==', getUserId()).get();
@@ -113,7 +123,7 @@ async function criarUsuario(email, senha, nome, role) {
     
     console.log('📢 Sucesso:', msg);
     showToast('success', msg);
-    return true;
+    return { sucesso: true, status: criadoComCloudFunction ? 'ativo' : 'pendente' };
   } catch (err) {
     console.error('❌ Erro ao criar usuário', err);
     showToast('error', `Erro ao criar usuário: ${err.message}`);
@@ -260,6 +270,66 @@ async function deletarUsuarioModal(usuarioId) {
   }
 }
 
+// Mostrar modal com senha temporária para cópia
+function mostrarModalSenhaTemporaria(email, senha, status) {
+  // Criar modal dinamicamente
+  const modalHTML = `
+    <div id="modal-senha-temp" class="modal active">
+      <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+          <h3><i class="fas fa-key"></i> Senha Temporária - ${status === 'ativo' ? 'Usuário Criado' : 'Usuário Pendente'}</h3>
+          <button class="modal-close" onclick="document.getElementById('modal-senha-temp').remove()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 2rem;">
+          <p style="margin-bottom: 1rem;">
+            <strong>Email:</strong> ${email}
+          </p>
+          <div style="background: #f0f4f8; padding: 1rem; border-radius: 8px; border-left: 4px solid #8bafd9; margin-bottom: 1rem;">
+            <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666;">Senha Temporária:</p>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <code style="flex: 1; background: white; padding: 0.75rem; border-radius: 6px; font-size: 1.1rem; font-weight: 600; color: #2c3e50; word-break: break-all;" id="senha-temp-display">${senha}</code>
+              <button class="btn btn-primary" onclick="copiarSenhaParaPapeleta('${senha}')" style="white-space: nowrap;">
+                <i class="fas fa-copy"></i> Copiar
+              </button>
+            </div>
+          </div>
+          <p style="background: #fff3cd; padding: 1rem; border-radius: 8px; border-left: 4px solid #f39c12; margin-bottom: 1rem; font-size: 0.95rem;">
+            <strong><i class="fas fa-exclamation-triangle"></i> Importante:</strong> Esta é a única vez que a senha será exibida. 
+            Compartilhe com o usuário ou anote em local seguro.
+          </p>
+          <p style="color: #666; font-size: 0.9rem; margin-bottom: 0;">
+            O usuário deve fazer login com seu email e esta senha no primeiro acesso.
+            Poderá alterar a senha no menu "Minha Conta" após entrar no sistema.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="document.getElementById('modal-senha-temp').remove(); showToast('success', 'Usuário criado! Senha anotada.');">
+            <i class="fas fa-check"></i> Entendi, Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Focar no campo de senha para cópia fácil
+  setTimeout(() => {
+    const display = document.getElementById('senha-temp-display');
+    if (display) display.select();
+  }, 100);
+}
+
+// Copiar senha para papeleta/clipboard
+function copiarSenhaParaPapeleta(senha) {
+  navigator.clipboard.writeText(senha).then(() => {
+    showToast('success', '✅ Senha copiada para a área de transferência!');
+  }).catch(err => {
+    console.error('Erro ao copiar:', err);
+    showToast('error', 'Erro ao copiar. Copie manualmente.');
+  });
+}
+
 // Salvar usuário (criar ou atualizar)
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('form-usuario');
@@ -288,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!email || !nome || !role) {
         console.error('❌ Validação falhou:', { email: !!email, nome: !!nome, role: !!role });
-        showToast('error', 'Email, senha e nome são obrigatórios.');
+        showToast('error', 'Email, nome e papel são obrigatórios.');
         return;
       }
 
@@ -298,9 +368,15 @@ document.addEventListener('DOMContentLoaded', () => {
           console.log('✏️ Atualizando usuário:', usuarioId);
           await atualizarUsuario(usuarioId, { nome, role });
         } else {
-          // Criar
-          console.log('➕ Criando novo usuário:', email);
-          await criarUsuario(email, '', nome, role);
+          // Criar - gerar senha temporária automaticamente
+          const senhaTemporaria = gerarSenhaTemporaria();
+          console.log('➕ Criando novo usuário:', email, 'com senha temporária');
+          const resultado = await criarUsuario(email, senhaTemporaria, nome, role);
+          
+          // Se sucesso, mostrar modal com senha temporária
+          if (resultado && resultado.sucesso) {
+            mostrarModalSenhaTemporaria(email, senhaTemporaria, resultado.status);
+          }
         }
 
         closeModal('modal-usuario');
@@ -321,3 +397,6 @@ window.renderizarTabelaUsuarios = renderizarTabelaUsuarios;
 window.mostrarModalNovoUsuario = mostrarModalNovoUsuario;
 window.editarUsuarioModal = editarUsuarioModal;
 window.deletarUsuarioModal = deletarUsuarioModal;
+window.gerarSenhaTemporaria = gerarSenhaTemporaria;
+window.mostrarModalSenhaTemporaria = mostrarModalSenhaTemporaria;
+window.copiarSenhaParaPapeleta = copiarSenhaParaPapeleta;
