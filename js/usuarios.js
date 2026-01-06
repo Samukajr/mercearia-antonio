@@ -15,30 +15,27 @@ function gerarSenhaTemporaria(length = 10) {
 
 async function listarUsuarios() {
   try {
-    const snap = await window.db.collection('usuarios')
-      .where('userId', '==', getUserId())
-      .get({ source: 'server' }); // força servidor para não usar cache
+    // Proprietários veem todos os usuários
+    // Não proprietários veem apenas a si mesmos
+    const role = window.currentRole || 'viewer';
+    let query = window.db.collection('usuarios');
+
+    if (role !== 'proprietario') {
+      // Usuários não-proprietários: apenas seus próprios dados
+      query = query.where('userId', '==', getUserId());
+    }
+    // Se proprietário: sem filtro = todos
+
+    const snap = await query.get({ source: 'server' }); // força servidor para não usar cache
 
     const usuarios = snap.docs
       .map(doc => ({ id: doc.id, ...doc.data() }));
 
-    console.log('📋 Usuários carregados (filtrados no cliente):', usuarios.length);
+    console.log('📋 Usuários carregados:', usuarios.length, 'Role:', role);
     return usuarios;
   } catch (err) {
     console.error('Erro ao listar usuários', err);
-    // Se filtro 'deletado' falhar (índice missing), tentar sem filtro
-    try {
-      const snap = await window.db.collection('usuarios')
-        .where('userId', '==', getUserId())
-        .get({ source: 'server' });
-      const usuarios = snap.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }));
-      console.log('📋 Usuários carregados (sem índice):', usuarios.length);
-      return usuarios;
-    } catch (err2) {
-      console.error('Erro ao listar usuários (fallback)', err2);
-      return [];
-    }
+    return [];
   }
 }
 
