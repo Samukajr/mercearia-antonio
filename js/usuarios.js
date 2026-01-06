@@ -94,6 +94,13 @@ async function criarUsuario(email, senha, nome, role) {
         console.log('📝 Sem senha - criando apenas no Firestore (pendente)');
       }
     } catch (fnErr) {
+      // Erro 409 = email já existe no Firebase Auth
+      if (fnErr.code === 'functions/already-exists' || fnErr.message?.includes('already-exists') || fnErr.message?.includes('409')) {
+        console.error('❌ Email já cadastrado no Firebase Auth:', email_lower);
+        showToast('error', `Email ${email_lower} já cadastrado no Firebase Auth. Use outro email ou faça login com este.`);
+        return false;
+      }
+      
       // Cloud Function não disponível ainda (normal antes do deploy)
       console.warn('⚠️ Cloud Function não está disponível. Criando apenas no Firestore.', fnErr.message);
       
@@ -363,7 +370,14 @@ function mostrarModalSenhaTemporaria(email, senha, status) {
   // Focar no campo de senha para cópia fácil
   setTimeout(() => {
     const display = document.getElementById('senha-temp-display');
-    if (display) display.select();
+    if (display) {
+      // Selecionar texto do code element
+      const range = document.createRange();
+      range.selectNodeContents(display);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
   }, 100);
 }
 
