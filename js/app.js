@@ -119,24 +119,12 @@ window.auth.onAuthStateChanged(async (user) => {
         await applyPermissionVisibility();
       }
       
-      // Garantir documento do usuário no Firestore
+      // Guardar role atual em memória
       const userRole = idTokenResult.claims.role || 'viewer';
       window.currentRole = userRole;
-      const userDoc = await window.db.collection('usuarios').doc(user.uid).get();
-      if (!userDoc.exists) {
-        console.log('📝 Criando documento do próprio usuário no login...');
-        await window.db.collection('usuarios').doc(user.uid).set({
-          userId: user.uid,  // Referência a si mesmo
-          email: user.email.toLowerCase(),
-          role: userRole,
-          status: 'ativo',
-          deletado: false,
-          criadoEm: firebase.firestore.Timestamp.now(),
-          criadoPor: 'auto-login',
-          atualizadoEm: firebase.firestore.Timestamp.now()
-        });
-        console.log('✅ Documento do usuário criado');
-      }
+      
+      // Não criar doc automaticamente aqui para não quebrar o tenantId (userId do proprietário)
+      // Exceto se for o primeiro proprietário (sem doc) – opcional; mantido desativado por segurança
     } catch (err) {
       console.warn('Erro ao verificar/atribuir role:', err);
     }
