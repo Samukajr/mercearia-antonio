@@ -151,6 +151,54 @@ async function criarUsuario(email, senha, nome, role) {
   }
 }
 
+// Criar usuários de teste rapidamente (apenas proprietario)
+async function criarUsuariosTeste() {
+  try {
+    const user = window.auth.currentUser;
+    if (!user) {
+      showToast('error', 'Faça login primeiro.');
+      return;
+    }
+
+    // Garantir que é proprietario
+    const token = await user.getIdTokenResult(true);
+    const role = token?.claims?.role || window.currentRole;
+    if (role !== 'proprietario') {
+      showToast('error', 'Apenas o proprietário pode criar usuários de teste.');
+      return;
+    }
+
+    const lista = [
+      { email: 'caixa@test.com', senha: 'Caixa@123456', nome: 'Operador de Caixa', role: 'operador_caixa' },
+      { email: 'gerente@test.com', senha: 'Gerente@123456', nome: 'Gerente da Loja', role: 'gerente' },
+      { email: 'proprietario@test.com', senha: 'Proprietario@123456', nome: 'Proprietário', role: 'proprietario' },
+      { email: 'admin@test.com', senha: 'Admin@123456', nome: 'Administrador', role: 'proprietario' }
+    ];
+
+    const createUserWithRole = firebase.functions().httpsCallable('createUserWithRole');
+
+    for (const u of lista) {
+      try {
+        await createUserWithRole({ email: u.email, password: u.senha, nome: u.nome, role: u.role });
+        showToast('success', `Usuário criado: ${u.email} (${u.role})`);
+      } catch (e) {
+        if ((e?.message || '').includes('already') || e?.code === 'already-exists' || (e?.details && e.details.code === 409)) {
+          showToast('info', `Usuário já existe: ${u.email}`);
+        } else {
+          console.error('Erro ao criar usuário de teste', u.email, e);
+          showToast('error', `Falha ao criar ${u.email}: ${e.message || e}`);
+        }
+      }
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    await renderizarTabelaUsuarios();
+  } catch (err) {
+    console.error('Erro no seed de usuários de teste', err);
+    showToast('error', 'Erro ao criar usuários de teste. Veja o console.');
+  }
+}
+
 async function atualizarUsuario(usuarioId, dados) {
   try {
     if (!await hasPermission('editar_usuario')) {
@@ -458,3 +506,4 @@ window.deletarUsuarioModal = deletarUsuarioModal;
 window.gerarSenhaTemporaria = gerarSenhaTemporaria;
 window.mostrarModalSenhaTemporaria = mostrarModalSenhaTemporaria;
 window.copiarSenhaParaPapeleta = copiarSenhaParaPapeleta;
+window.criarUsuariosTeste = criarUsuariosTeste;
