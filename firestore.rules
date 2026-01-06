@@ -5,6 +5,7 @@ service cloud.firestore {
         // usuário cuja ficha em /usuarios/{uid} tem userId igual ao userId do documento
         function sameTenant(docUserId) {
           return request.auth != null && (
+            isProprietario() ||
             request.auth.uid == docUserId ||
             get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.userId == docUserId
           );
