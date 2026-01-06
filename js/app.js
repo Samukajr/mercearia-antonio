@@ -121,6 +121,7 @@ window.auth.onAuthStateChanged(async (user) => {
       
       // Garantir documento do usuário no Firestore
       const userRole = idTokenResult.claims.role || 'viewer';
+      window.currentRole = userRole;
       const userDoc = await window.db.collection('usuarios').doc(user.uid).get();
       if (!userDoc.exists) {
         console.log('📝 Criando documento do próprio usuário no login...');
