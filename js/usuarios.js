@@ -15,15 +15,30 @@ function gerarSenhaTemporaria(length = 10) {
 
 async function listarUsuarios() {
   try {
-    const snap = await window.db.collection('usuarios').where('userId', '==', getUserId()).get();
-    const usuarios = [];
-    snap.forEach(doc => {
-      usuarios.push({ id: doc.id, ...doc.data() });
-    });
+    const snap = await window.db.collection('usuarios')
+      .where('userId', '==', getUserId())
+      .get({ source: 'server' }); // força servidor para não usar cache
+
+    const usuarios = snap.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }));
+
+    console.log('📋 Usuários carregados (filtrados no cliente):', usuarios.length);
     return usuarios;
   } catch (err) {
     console.error('Erro ao listar usuários', err);
-    return [];
+    // Se filtro 'deletado' falhar (índice missing), tentar sem filtro
+    try {
+      const snap = await window.db.collection('usuarios')
+        .where('userId', '==', getUserId())
+        .get({ source: 'server' });
+      const usuarios = snap.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }));
+      console.log('📋 Usuários carregados (sem índice):', usuarios.length);
+      return usuarios;
+    } catch (err2) {
+      console.error('Erro ao listar usuários (fallback)', err2);
+      return [];
+    }
   }
 }
 
@@ -93,6 +108,7 @@ async function criarUsuario(email, senha, nome, role) {
       nome: nome.trim(),
       role: role,
       status: criadoComCloudFunction ? 'ativo' : 'pendente',
+      deletado: false,
       criadoEm: firebase.firestore.Timestamp.now(),
       criadoPor: window.auth.currentUser.email,
       atualizadoEm: firebase.firestore.Timestamp.now()
@@ -166,24 +182,55 @@ async function deletarUsuario(usuarioId) {
       return false;
     }
 
-    if (!confirm('Tem certeza que deseja deletar este usuário? Todos os seus dados serão marcados como deletados.')) {
+    // Checar role atual no token
+    try {
+      const user = window.auth.currentUser;
+      const token = user ? await user.getIdTokenResult() : null;
+      console.log('🛂 Role atual no token:', token?.claims?.role);
+      if (!token?.claims?.role || token.claims.role !== 'proprietario') {
+        showToast('error', 'Seu login não tem role proprietario; refaça o login.');
+        return false;
+      }
+    } catch (e) {
+      console.warn('⚠️ Não foi possível ler claims do token', e);
+    }
+
+    if (!confirm('Tem certeza que deseja deletar este usuário? Este registro será removido.')) {
       return false;
     }
 
-    // Soft delete: marcar como deletado em vez de remover
-    await window.db.collection('usuarios').doc(usuarioId).update({
-      deletado: true,
-      deletadoEm: firebase.firestore.Timestamp.now(),
-      deletadoPor: window.auth.currentUser.email
-    });
+    console.log('🗑️ DELETANDO usuário:', usuarioId);
+    alert('DEBUG: Iniciando delete de ' + usuarioId);
+
+    // Delete definitivo
+    await window.db.collection('usuarios').doc(usuarioId).delete();
+    console.log('✅ DOCUMENTO REMOVIDO DO FIRESTORE');
+    alert('DEBUG: Delete executado, verificando se existe...');
+
+    // Verificar se ainda existe (server)
+    const docCheck = await window.db.collection('usuarios').doc(usuarioId).get({ source: 'server' });
+    console.log('🔍 EXISTE APÓS DELETE?', docCheck.exists);
+    alert('DEBUG: Existe após delete? ' + docCheck.exists);
 
     await registrarAuditoria('deletar_usuario', 'usuarios', { usuarioId });
     
     showToast('success', 'Usuário deletado com sucesso!');
+    
+    // Limpar cache e atualizar a tabela
+    await window.db.clearPersistence().catch(() => console.warn('Cache já em uso'));
+    await new Promise(r => setTimeout(r, 100));
+    await renderizarTabelaUsuarios();
+    console.log('🔄 TABELA RENDERIZADA APÓS DELETE');
+    
     return true;
   } catch (err) {
-    console.error('Erro ao deletar usuário', err);
-    showToast('error', 'Erro ao deletar usuário.');
+    console.error('❌ Erro ao deletar usuário', err);
+    const code = err?.code || 'desconhecido';
+    if (code === 'permission-denied') {
+      showToast('error', 'Sem permissão para deletar este usuário.');
+    } else {
+      showToast('error', `Erro ao deletar usuário: ${code}`);
+    }
     return false;
   }
 }
@@ -194,7 +241,11 @@ async function renderizarTabelaUsuarios() {
   if (!tbody) return;
 
   try {
-    const usuarios = await listarUsuarios();
+    // Garantir que não exibimos deletados mesmo se vierem do fallback (mantido para segurança)
+    const usuarios = (await listarUsuarios()).filter(u => u.deletado !== true && u.status !== 'deletado');
+    console.log('📋 RENDERIZANDO', usuarios.length, 'USUARIOS');
+    console.log('📋 IDs:', usuarios.map(u => u.id));
+    console.log('📋 Emails:', usuarios.map(u => u.email));
     tbody.innerHTML = '';
 
     if (usuarios.length === 0) {
@@ -265,8 +316,16 @@ async function deletarUsuarioModal(usuarioId) {
   const u = doc.data();
   
   if (confirm(`Tem certeza que deseja deletar ${u.email}?`)) {
-    await deletarUsuario(usuarioId);
-    await renderizarTabelaUsuarios();
+    const resultado = await deletarUsuario(usuarioId);
+    if (resultado) {
+      console.log('✅ Usuário deletado, recarregando lista...');
+      await new Promise(r => setTimeout(r, 500));  // Aguardar um pouco
+      await renderizarTabelaUsuarios();
+
+      // Remover linha da tabela caso ainda esteja visível (fallback UI)
+      const row = document.querySelector(`button[onclick="deletarUsuarioModal('${usuarioId}')"]`)?.closest('tr');
+      if (row) row.remove();
+    }
   }
 }
 
