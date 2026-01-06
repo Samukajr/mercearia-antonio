@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Usuários de Teste - Mercearia do Antonio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .usuarios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .usuario-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .usuario-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .usuario-card h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .usuario-info {
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .usuario-info label {
+            color: #888;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .usuario-info code {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            display: block;
+            margin-top: 2px;
+            color: #333;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-create:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-copy {
+            background: #e9ecef;
+            color: #333;
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+
+        .btn-copy:hover {
+            background: #dee2e6;
+        }
+
+        .status {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            gap: 10px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-icon {
+            font-size: 18px;
+            min-width: 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .info {
+            color: #667eea;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #856404;
+            display: flex;
+            gap: 10px;
+        }
+
+        .alert-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Criar Usuários de Teste</h1>
+        <p class="subtitle">Mercearia do Antonio - Sistema de Gestão</p>
+
+        <div class="alert">
+            <span class="alert-icon">⚠️</span>
+            <span>Certifique-se de que você está logado como <strong>proprietário</strong> antes de criar os usuários</span>
+        </div>
+
+        <div id="status" class="status" style="display: none;">
+            <div id="status-content"></div>
+        </div>
+
+        <div class="btn-container">
+            <button class="btn-create" id="btn-criar-todos" onclick="criarTodos()">
+                🚀 Criar Todos os Usuários
+            </button>
+            <button class="btn-create" onclick="location.reload()" style="background: #6c757d; background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);">
+                🔄 Recarregar
+            </button>
+        </div>
+
+        <div class="usuarios-grid">
+            <!-- Caixa -->
+            <div class="usuario-card">
+                <h3>📦 Operador de Caixa</h3>
+                <div class="usuario-info">
+                    <label>Email:</label>
+                    <code id="email-caixa">caixa@test.com</code>
+                    <button class="btn-copy" onclick="copiar('email-caixa')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Senha:</label>
+                    <code id="senha-caixa">Caixa@123456</code>
+                    <button class="btn-copy" onclick="copiar('senha-caixa')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Role:</label>
+                    <code>operador_caixa</code>
+                </div>
+                <button class="btn-create" style="margin-top: 12px; font-size: 12px; width: 100%;" 
+                    onclick="criarUnico('caixa@test.com', 'Caixa@123456', 'Operador de Caixa', 'operador_caixa')">
+                    Criar este usuário
+                </button>
+            </div>
+
+            <!-- Gerente -->
+            <div class="usuario-card">
+                <h3>👔 Gerente da Loja</h3>
+                <div class="usuario-info">
+                    <label>Email:</label>
+                    <code id="email-gerente">gerente@test.com</code>
+                    <button class="btn-copy" onclick="copiar('email-gerente')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Senha:</label>
+                    <code id="senha-gerente">Gerente@123456</code>
+                    <button class="btn-copy" onclick="copiar('senha-gerente')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Role:</label>
+                    <code>gerente</code>
+                </div>
+                <button class="btn-create" style="margin-top: 12px; font-size: 12px; width: 100%;" 
+                    onclick="criarUnico('gerente@test.com', 'Gerente@123456', 'Gerente da Loja', 'gerente')">
+                    Criar este usuário
+                </button>
+            </div>
+
+            <!-- Proprietário -->
+            <div class="usuario-card">
+                <h3>👑 Proprietário</h3>
+                <div class="usuario-info">
+                    <label>Email:</label>
+                    <code id="email-proprietario">proprietario@test.com</code>
+                    <button class="btn-copy" onclick="copiar('email-proprietario')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Senha:</label>
+                    <code id="senha-proprietario">Proprietario@123456</code>
+                    <button class="btn-copy" onclick="copiar('senha-proprietario')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Role:</label>
+                    <code>proprietario</code>
+                </div>
+                <button class="btn-create" style="margin-top: 12px; font-size: 12px; width: 100%;" 
+                    onclick="criarUnico('proprietario@test.com', 'Proprietario@123456', 'Proprietário', 'proprietario')">
+                    Criar este usuário
+                </button>
+            </div>
+
+            <!-- Admin -->
+            <div class="usuario-card">
+                <h3>🔧 Administrador</h3>
+                <div class="usuario-info">
+                    <label>Email:</label>
+                    <code id="email-admin">admin@test.com</code>
+                    <button class="btn-copy" onclick="copiar('email-admin')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Senha:</label>
+                    <code id="senha-admin">Admin@123456</code>
+                    <button class="btn-copy" onclick="copiar('senha-admin')">Copiar</button>
+                </div>
+                <div class="usuario-info">
+                    <label>Role:</label>
+                    <code>proprietario</code>
+                </div>
+                <button class="btn-create" style="margin-top: 12px; font-size: 12px; width: 100%;" 
+                    onclick="criarUnico('admin@test.com', 'Admin@123456', 'Administrador', 'proprietario')">
+                    Criar este usuário
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        function copiar(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const textoOriginal = btn.textContent;
+                btn.textContent = '✅ Copiado!';
+                setTimeout(() => {
+                    btn.textContent = textoOriginal;
+                }, 2000);
+            });
+        }
+
+        function mostrarStatus(mensagem, tipo = 'info') {
+            const statusDiv = document.getElementById('status');
+            const statusContent = document.getElementById('status-content');
+            
+            if (!statusDiv.innerHTML.includes(mensagem)) {
+                const item = document.createElement('div');
+                item.className = `status-item ${tipo}`;
+                
+                if (tipo === 'info') {
+                    item.innerHTML = `<span class="status-icon">ℹ️</span><span>${mensagem}</span>`;
+                } else if (tipo === 'success') {
+                    item.innerHTML = `<span class="status-icon">✅</span><span>${mensagem}</span>`;
+                } else if (tipo === 'error') {
+                    item.innerHTML = `<span class="status-icon">❌</span><span>${mensagem}</span>`;
+                } else if (tipo === 'loading') {
+                    item.innerHTML = `<span class="status-icon"><div class="spinner"></div></span><span>${mensagem}</span>`;
+                }
+                
+                statusContent.appendChild(item);
+            }
+            
+            statusDiv.style.display = 'block';
+        }
+
+        async function criarUnico(email, password, nome, role) {
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    mostrarStatus('❌ Você não está logado! Faça login primeiro.', 'error');
+                    return;
+                }
+
+                mostrarStatus(`Criando ${nome}...`, 'loading');
+
+                const createUserWithRole = firebase.functions().httpsCallable('createUserWithRole');
+                const resultado = await createUserWithRole({
+                    email,
+                    password,
+                    nome,
+                    role
+                });
+
+                mostrarStatus(`✅ ${nome} criado com sucesso!`, 'success');
+            } catch (err) {
+                console.error('Erro:', err);
+                mostrarStatus(`❌ Erro ao criar ${nome}: ${err.message}`, 'error');
+            }
+        }
+
+        async function criarTodos() {
+            try {
+                const user = firebase.auth().currentUser;
+                if (!user) {
+                    mostrarStatus('❌ Você não está logado! Faça login primeiro.', 'error');
+                    return;
+                }
+
+                document.getElementById('btn-criar-todos').disabled = true;
+
+                const usuarios = [
+                    { email: 'caixa@test.com', password: 'Caixa@123456', nome: 'Operador de Caixa', role: 'operador_caixa' },
+                    { email: 'gerente@test.com', password: 'Gerente@123456', nome: 'Gerente da Loja', role: 'gerente' },
+                    { email: 'proprietario@test.com', password: 'Proprietario@123456', nome: 'Proprietário', role: 'proprietario' },
+                    { email: 'admin@test.com', password: 'Admin@123456', nome: 'Administrador', role: 'proprietario' }
+                ];
+
+                document.getElementById('status-content').innerHTML = '';
+
+                for (const usuario of usuarios) {
+                    await criarUnico(usuario.email, usuario.password, usuario.nome, usuario.role);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+
+                mostrarStatus('🎉 Todos os usuários foram criados com sucesso!', 'success');
+            } catch (err) {
+                console.error('Erro:', err);
+                mostrarStatus(`❌ Erro geral: ${err.message}`, 'error');
+            } finally {
+                document.getElementById('btn-criar-todos').disabled = false;
+            }
+        }
+
+        // Verificar login ao carregar
+        window.addEventListener('load', () => {
+            firebase.auth().onAuthStateChanged(user => {
+                if (!user) {
+                    mostrarStatus('⚠️ Você não está logado. Acesse a app principal e faça login como proprietário.', 'error');
+                    document.getElementById('btn-criar-todos').disabled = true;
+                } else {
+                    mostrarStatus(`✅ Logado como: ${user.email}`, 'success');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

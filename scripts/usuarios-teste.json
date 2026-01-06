@@ -1,0 +1,54 @@
+[
+  {
+    "localId": "caixa-user-id-001",
+    "email": "caixa@test.com",
+    "emailVerified": false,
+    "displayName": "Operador de Caixa",
+    "passwordHash": "test-password",
+    "passwordUpdatedAt": 1704544000000,
+    "validSince": 1704544000,
+    "salt": "test-salt",
+    "customAttributes": {
+      "role": "operador_caixa"
+    }
+  },
+  {
+    "localId": "gerente-user-id-001",
+    "email": "gerente@test.com",
+    "emailVerified": false,
+    "displayName": "Gerente da Loja",
+    "passwordHash": "test-password",
+    "passwordUpdatedAt": 1704544000000,
+    "validSince": 1704544000,
+    "salt": "test-salt",
+    "customAttributes": {
+      "role": "gerente"
+    }
+  },
+  {
+    "localId": "proprietario-user-id-001",
+    "email": "proprietario@test.com",
+    "emailVerified": false,
+    "displayName": "Proprietário",
+    "passwordHash": "test-password",
+    "passwordUpdatedAt": 1704544000000,
+    "validSince": 1704544000,
+    "salt": "test-salt",
+    "customAttributes": {
+      "role": "proprietario"
+    }
+  },
+  {
+    "localId": "admin-user-id-001",
+    "email": "admin@test.com",
+    "emailVerified": false,
+    "displayName": "Administrador",
+    "passwordHash": "test-password",
+    "passwordUpdatedAt": 1704544000000,
+    "validSince": 1704544000,
+    "salt": "test-salt",
+    "customAttributes": {
+      "role": "proprietario"
+    }
+  }
+]
