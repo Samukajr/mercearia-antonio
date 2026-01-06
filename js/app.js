@@ -118,6 +118,24 @@ window.auth.onAuthStateChanged(async (user) => {
         // Reaplicar permissões após atribuir role
         await applyPermissionVisibility();
       }
+      
+      // Garantir documento do usuário no Firestore
+      const userRole = idTokenResult.claims.role || 'viewer';
+      const userDoc = await window.db.collection('usuarios').doc(user.uid).get();
+      if (!userDoc.exists) {
+        console.log('📝 Criando documento do próprio usuário no login...');
+        await window.db.collection('usuarios').doc(user.uid).set({
+          userId: user.uid,  // Referência a si mesmo
+          email: user.email.toLowerCase(),
+          role: userRole,
+          status: 'ativo',
+          deletado: false,
+          criadoEm: firebase.firestore.Timestamp.now(),
+          criadoPor: 'auto-login',
+          atualizadoEm: firebase.firestore.Timestamp.now()
+        });
+        console.log('✅ Documento do usuário criado');
+      }
     } catch (err) {
       console.warn('Erro ao verificar/atribuir role:', err);
     }
