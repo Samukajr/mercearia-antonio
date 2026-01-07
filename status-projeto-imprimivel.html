@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status do Projeto - Mercearia do Antonio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background: #f5f5f5;
+        }
+
+        .page {
+            background: white;
+            padding: 15mm;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10mm;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #27ae60;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #27ae60;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: space-between;
+            background: #ecf0f1;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            background: #27ae60;
+            color: white;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border-radius: 3px;
+        }
+
+        .section-title.red {
+            background: #e74c3c;
+        }
+
+        .section-title.orange {
+            background: #f39c12;
+        }
+
+        .section-title.blue {
+            background: #3498db;
+        }
+
+        .subsection {
+            margin-bottom: 15px;
+        }
+
+        .subsection-title {
+            background: #ecf0f1;
+            padding: 6px 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .feature-list {
+            margin-left: 20px;
+        }
+
+        .feature-item {
+            padding: 4px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .feature-item.done::before {
+            content: '✅';
+            position: absolute;
+            left: 0;
+            font-size: 14px;
+        }
+
+        .feature-item.missing::before {
+            content: '❌';
+            position: absolute;
+            left: 0;
+            font-size: 14px;
+        }
+
+        .feature-item.warning::before {
+            content: '⚠️';
+            position: absolute;
+            left: 0;
+            font-size: 14px;
+        }
+
+        .highlight-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .danger-box {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 12px;
+            margin: 10px 0;
+        }
+
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .cost-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .cost-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .cost-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .roadmap {
+            display: grid;
+            gap: 10px;
+        }
+
+        .roadmap-item {
+            border: 2px solid #3498db;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .roadmap-item h4 {
+            color: #2980b9;
+            margin-bottom: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .badge.green {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge.red {
+            background: #f44336;
+            color: white;
+        }
+
+        .badge.orange {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge.blue {
+            background: #2196f3;
+            color: white;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .no-print {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .no-print button {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .no-print button:hover {
+            background: #229954;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .page {
+                box-shadow: none;
+                padding: 10mm;
+                margin: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()">🖨️ Imprimir Relatório</button>
+        <button onclick="location.href='checklist-proprietario-imprimivel.html'">📋 Ver Checklist</button>
+    </div>
+
+    <div class="page">
+        <div class="header">
+            <h1>📊 Status Atual do Sistema</h1>
+            <p>Mercearia do Antonio - Sistema de Gestão</p>
+        </div>
+
+        <div class="meta-info">
+            <div><strong>Data:</strong> 07/01/2026</div>
+            <div><strong>Versão:</strong> 1.0 (MVP)</div>
+            <div><strong>Status:</strong> <span class="badge orange">EM DESENVOLVIMENTO</span></div>
+        </div>
+
+        <!-- Funcionalidades Implementadas -->
+        <div class="section">
+            <div class="section-title">✅ Funcionalidades Implementadas e Funcionais</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">🏪 Gestão de Estoque</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Cadastro, edição e exclusão de produtos</div>
+                    <div class="feature-item done">Busca e filtros</div>
+                    <div class="feature-item done">Controle de quantidade</div>
+                    <div class="feature-item done">Alerta de estoque baixo</div>
+                    <div class="feature-item done">Categorização de produtos</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">💰 Ponto de Venda (PDV)</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Carrinho de compras</div>
+                    <div class="feature-item done">Adicionar/remover itens</div>
+                    <div class="feature-item done">Cálculo de totais</div>
+                    <div class="feature-item done">Registro de vendas no banco</div>
+                    <div class="feature-item done">Histórico de vendas</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">💵 Fluxo de Caixa</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Abertura de caixa</div>
+                    <div class="feature-item done">Fechamento de caixa</div>
+                    <div class="feature-item done">Movimentações (entrada/saída)</div>
+                    <div class="feature-item done">Sangria e reforço</div>
+                    <div class="feature-item done">Relatório de fechamento</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">📈 Relatórios</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Vendas por período</div>
+                    <div class="feature-item done">Produtos mais vendidos (ranking)</div>
+                    <div class="feature-item done">Resumo de movimentações</div>
+                    <div class="feature-item done">Fluxo de caixa</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">👥 Gestão de Usuários</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Cadastro, edição e exclusão</div>
+                    <div class="feature-item done">Sistema de roles (RBAC)</div>
+                    <div class="feature-item done">5 níveis: Proprietário, Gerente, Caixa, Estoque, Viewer</div>
+                    <div class="feature-item done">Controle de permissões por tela</div>
+                    <div class="feature-item done">Alterar senha (Minha Conta)</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">🔐 Segurança</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Login/logout com Firebase Auth</div>
+                    <div class="feature-item done">Controle de sessão</div>
+                    <div class="feature-item done">Custom claims (roles)</div>
+                    <div class="feature-item done">Multi-tenant (isolamento de dados)</div>
+                    <div class="feature-item done">Firestore Rules configuradas</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">📋 LGPD e Conformidade</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Modal de consentimento</div>
+                    <div class="feature-item done">Política de privacidade e Termos de uso</div>
+                    <div class="feature-item done">Exportação de dados pessoais</div>
+                    <div class="feature-item done">Log de auditoria</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">📱 PWA (Progressive Web App)</div>
+                <div class="feature-list">
+                    <div class="feature-item done">Instalável no celular/desktop</div>
+                    <div class="feature-item done">Service Worker</div>
+                    <div class="feature-item done">Funciona parcialmente offline</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página 2 -->
+    <div class="page">
+        <!-- O que NÃO está implementado -->
+        <div class="section">
+            <div class="section-title red">❌ O Que NÃO Está Implementado (Crítico para Produção)</div>
+            
+            <div class="danger-box">
+                <strong>⚠️ ATENÇÃO:</strong> Os itens abaixo são OBRIGATÓRIOS para uso fiscal/comercial em São Paulo.
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">🧾 Fiscal (OBRIGATÓRIO para SP)</div>
+                <div class="feature-list">
+                    <div class="feature-item missing">SAT-CF-e (equipamento fiscal)</div>
+                    <div class="feature-item missing">NFC-e (nota fiscal eletrônica)</div>
+                    <div class="feature-item missing">Emissão de cupom fiscal</div>
+                    <div class="feature-item missing">Cancelamento de cupom</div>
+                    <div class="feature-item missing">Transmissão para SEFAZ</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">💳 Pagamentos</div>
+                <div class="feature-list">
+                    <div class="feature-item missing">PIX automático (QR Code gerado)</div>
+                    <div class="feature-item missing">Gateway (Mercado Pago, PagSeguro)</div>
+                    <div class="feature-item missing">TEF (maquininha integrada)</div>
+                    <div class="feature-item missing">Parcelamento automático</div>
+                    <div class="feature-item missing">Controle de crediário/fiado</div>
+                    <div class="feature-item warning">Dinheiro: funciona (registro manual)</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">🖨️ Hardware</div>
+                <div class="feature-list">
+                    <div class="feature-item missing">Impressora térmica integrada</div>
+                    <div class="feature-item missing">Leitor de código de barras USB</div>
+                    <div class="feature-item missing">Gaveta de dinheiro automática</div>
+                    <div class="feature-item missing">Balança digital integrada</div>
+                    <div class="feature-item missing">Display do cliente</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">📦 Integrações</div>
+                <div class="feature-list">
+                    <div class="feature-item missing">Fornecedores (importação XML NF-e)</div>
+                    <div class="feature-item missing">Contabilidade (SPED)</div>
+                    <div class="feature-item missing">E-commerce / Delivery</div>
+                    <div class="feature-item missing">WhatsApp Business API</div>
+                    <div class="feature-item missing">ERP externo</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">📊 Relatórios Avançados</div>
+                <div class="feature-list">
+                    <div class="feature-item missing">DRE (Demonstrativo de Resultados)</div>
+                    <div class="feature-item missing">Curva ABC de produtos</div>
+                    <div class="feature-item missing">Análise de margem de lucro</div>
+                    <div class="feature-item missing">Projeção de vendas</div>
+                    <div class="feature-item missing">Comparativo entre períodos</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">🔄 Operacional</div>
+                <div class="feature-list">
+                    <div class="feature-item missing">Controle de validade de produtos</div>
+                    <div class="feature-item missing">Transferência entre lojas</div>
+                    <div class="feature-item missing">Inventário/contagem de estoque</div>
+                    <div class="feature-item missing">Devolução de produtos</div>
+                    <div class="feature-item missing">Comissão de vendedores</div>
+                    <div class="feature-item missing">Programa de fidelidade</div>
+                    <div class="feature-item missing">Promoções/descontos automáticos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Limitações Técnicas -->
+        <div class="section">
+            <div class="section-title orange">⚠️ Limitações Técnicas Atuais</div>
+            
+            <div class="warning-box">
+                <strong>Performance:</strong>
+                <ul>
+                    <li>Firebase gratuito: limite de 50k leituras/dia</li>
+                    <li>Sem índices compostos avançados</li>
+                    <li>Sem cache otimizado para offline</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>Escalabilidade:</strong>
+                <ul>
+                    <li>Multi-tenant básico (pode precisar refinamento para 100+ lojas)</li>
+                    <li>Backup manual (não automatizado)</li>
+                    <li>Sem réplica de dados</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>UX/UI:</strong>
+                <ul>
+                    <li>Sem atalhos de teclado no PDV</li>
+                    <li>Sem modo "caixa rápido"</li>
+                    <li>Busca precisa digitar completo</li>
+                    <li>Sem impressão direta de relatórios</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página 3 -->
+    <div class="page">
+        <!-- Próximos Passos -->
+        <div class="section">
+            <div class="section-title blue">🚀 Próximos Passos Recomendados</div>
+            
+            <div class="roadmap">
+                <div class="roadmap-item">
+                    <h4><span class="badge blue">CURTO PRAZO</span> 1-2 semanas - Uso Interno</h4>
+                    <ol>
+                        <li>Testar sistema com vendas reais (paralelo)</li>
+                        <li>Adicionar formas de pagamento (PIX manual, cartão)</li>
+                        <li>Impressão de cupom não-fiscal (PDF)</li>
+                        <li>Atalhos de teclado no PDV</li>
+                        <li>Busca rápida por código de barras</li>
+                    </ol>
+                </div>
+
+                <div class="roadmap-item">
+                    <h4><span class="badge orange">MÉDIO PRAZO</span> 1-2 meses - Compliance Fiscal</h4>
+                    <ol start="6">
+                        <li><strong>DECISÃO:</strong> SAT-CF-e, NFC-e ou serviço terceiro?</li>
+                        <li>Implementar solução fiscal escolhida</li>
+                        <li>Homologação com SEFAZ-SP</li>
+                        <li>Integrar impressora térmica</li>
+                        <li>Testes de emissão de cupom</li>
+                    </ol>
+                </div>
+
+                <div class="roadmap-item">
+                    <h4><span class="badge green">LONGO PRAZO</span> 3-6 meses - Produção Completa</h4>
+                    <ol start="11">
+                        <li>Gateway de pagamento (TEF, PIX automático)</li>
+                        <li>Integrações hardware (leitor, balança, gaveta)</li>
+                        <li>Relatórios avançados (DRE, ABC, margem)</li>
+                        <li>Backup automatizado</li>
+                        <li>Funcionalidades avançadas (fidelidade, promoções)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estimativa de Custos -->
+        <div class="section">
+            <div class="section-title">💰 Estimativa de Custos</div>
+            
+            <table class="cost-table">
+                <thead>
+                    <tr>
+                        <th>Cenário</th>
+                        <th>Investimento Inicial</th>
+                        <th>Mensalidade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Como está (controle interno)</strong></td>
+                        <td>R$ 0</td>
+                        <td>R$ 0</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background: #f1f8e9; font-size: 12px;">
+                            ⚠️ Limitação: não emite nota fiscal
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Opção A: SAT-CF-e</strong></td>
+                        <td>R$ 1.500 - R$ 2.100</td>
+                        <td>R$ 0</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="font-size: 12px;">
+                            • Equipamento SAT: R$ 800-1.500<br>
+                            • Impressora térmica: R$ 300-600
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Opção B: NFC-e</strong></td>
+                        <td>R$ 450 - R$ 850</td>
+                        <td>R$ 0 - R$ 150</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="font-size: 12px;">
+                            • Certificado digital: R$ 150-250/ano<br>
+                            • Impressora térmica: R$ 300-600<br>
+                            • Sistema emissor: R$ 0-150/mês
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Opção C: Serviço Terceiro</strong></td>
+                        <td>R$ 300 - R$ 600</td>
+                        <td>R$ 50 - R$ 150</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="font-size: 12px;">
+                            • Impressora térmica: R$ 300-600<br>
+                            • FocusNFe/NFE.io: R$ 50-150/mês (inclui SAT ou NFC-e)
+                        </td>
+                    </tr>
+                    <tr style="background: #e3f2fd;">
+                        <td><strong>Produção Completa</strong></td>
+                        <td>R$ 2.000 - R$ 3.000</td>
+                        <td>R$ 100 - R$ 400</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="font-size: 12px;">
+                            • Fiscal + Impressora + Leitor código barras<br>
+                            • Gateway pagamento (só taxa ~3% por transação)<br>
+                            • Firebase Blaze: R$ 50-200/mês (se passar dos limites)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Conclusão -->
+        <div class="section">
+            <div class="section-title">🎯 Conclusão</div>
+            
+            <div class="highlight-box">
+                <strong>Sistema está PRONTO para:</strong>
+                <ul>
+                    <li>✅ Controle interno de estoque e vendas</li>
+                    <li>✅ Relatórios gerenciais</li>
+                    <li>✅ Gestão de equipe (multi-usuário)</li>
+                    <li>✅ Testes em ambiente real (sem emissão de nota)</li>
+                </ul>
+            </div>
+
+            <div class="danger-box">
+                <strong>Sistema NÃO está pronto para:</strong>
+                <ul>
+                    <li>❌ Uso fiscal obrigatório (falta SAT ou NFC-e)</li>
+                    <li>❌ Pagamentos eletrônicos automáticos</li>
+                    <li>❌ Integrações de hardware avançadas</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>📌 Recomendação:</strong><br>
+                Usar por 1-2 semanas como controle interno paralelo ao processo atual, validar o fluxo, e depois decidir sobre investimentos em fiscal e hardware.
+            </div>
+        </div>
+
+        <!-- Como Retomar -->
+        <div class="section">
+            <div class="section-title">📞 Como Retomar o Desenvolvimento</div>
+            <ol>
+                <li>Abrir projeto no VS Code</li>
+                <li>Verificar pendências em <code>CHECKLIST-CONVERSA-PROPRIETARIO.md</code></li>
+                <li>Decidir próxima funcionalidade (fiscal, pagamentos, hardware)</li>
+                <li>Implementar e testar</li>
+                <li>Deploy: <code>git push</code> (GitHub Pages auto-deploy)</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

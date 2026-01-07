@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist: Conversa com Proprietário - Mercearia do Antonio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background: #f5f5f5;
+        }
+
+        .page {
+            background: white;
+            padding: 15mm;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 10mm;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .info-line label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .info-line .fill-in {
+            border-bottom: 1px solid #000;
+            flex: 1;
+            margin-left: 10px;
+            min-width: 200px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            background: #3498db;
+            color: white;
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            border-radius: 3px;
+        }
+
+        .subsection {
+            margin-bottom: 15px;
+        }
+
+        .subsection-title {
+            background: #ecf0f1;
+            padding: 6px 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            border-left: 4px solid #3498db;
+        }
+
+        .checkbox-item {
+            padding: 6px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .checkbox-item::before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            font-size: 18px;
+            color: #3498db;
+        }
+
+        .checkbox-group {
+            margin-left: 20px;
+        }
+
+        .fill-blank {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            min-width: 150px;
+            margin: 0 3px;
+        }
+
+        .highlight-box {
+            background: #fff9e6;
+            border-left: 4px solid #f39c12;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .cost-box {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+        }
+
+        .cost-box strong {
+            color: #2e7d32;
+        }
+
+        .option-card {
+            border: 2px solid #bdc3c7;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .option-card h4 {
+            color: #2980b9;
+            margin-bottom: 8px;
+        }
+
+        .notes-area {
+            border: 1px solid #bdc3c7;
+            min-height: 60px;
+            padding: 8px;
+            margin-top: 5px;
+            background: #fafafa;
+        }
+
+        .decision-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .decision-box h3 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .contact-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .contact-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .contact-table td:first-child {
+            font-weight: 600;
+            background: #f5f5f5;
+            width: 30%;
+        }
+
+        .tip-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+        }
+
+        .tip-box::before {
+            content: '💡 ';
+            font-size: 18px;
+        }
+
+        ol, ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        .no-print {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .no-print button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .no-print button:hover {
+            background: #2980b9;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .page {
+                box-shadow: none;
+                padding: 10mm;
+                margin: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .checkbox-item::before {
+                content: '□';
+                color: #000;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button onclick="window.print()">🖨️ Imprimir Checklist</button>
+        <button onclick="location.href='status-projeto-imprimivel.html'">📊 Ver Status do Projeto</button>
+    </div>
+
+    <div class="page">
+        <div class="header">
+            <h1>📋 Checklist: Conversa com Proprietário</h1>
+            <p>Sistema de Gestão para Mercearia</p>
+        </div>
+
+        <div class="info-line">
+            <label>Data da Reunião:</label>
+            <span class="fill-in"></span>
+        </div>
+        <div class="info-line">
+            <label>Participantes:</label>
+            <span class="fill-in"></span>
+        </div>
+
+        <!-- Seção 1 -->
+        <div class="section">
+            <div class="section-title">1️⃣ Informações Básicas do Negócio</div>
+            
+            <div class="checkbox-item">Faturamento mensal médio: R$ <span class="fill-blank"></span></div>
+            <div class="checkbox-item">Número de vendas por dia: <span class="fill-blank"></span></div>
+            <div class="checkbox-item">Ticket médio: R$ <span class="fill-blank"></span></div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Tipo de cliente principal:</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Consumidor final (B2C)</div>
+                    <div class="checkbox-item">Empresas/CNPJ (B2B)</div>
+                    <div class="checkbox-item">Ambos</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção 2 -->
+        <div class="section">
+            <div class="section-title">2️⃣ Situação Fiscal Atual</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Documentos fiscais usados hoje:</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Cupom fiscal (ECF - máquina antiga)</div>
+                    <div class="checkbox-item">Nota fiscal manual (talão)</div>
+                    <div class="checkbox-item">SAT-CF-e (equipamento SAT)</div>
+                    <div class="checkbox-item">NFC-e (nota eletrônica)</div>
+                    <div class="checkbox-item">Nenhum (informal)</div>
+                    <div class="checkbox-item">Outro: <span class="fill-blank"></span></div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Certificado Digital:</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Tem certificado digital A1? Válido até: <span class="fill-blank"></span></div>
+                    <div class="checkbox-item">Não tem certificado</div>
+                    <div class="checkbox-item">Não sabe o que é</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">CNPJ:</div>
+                <div class="checkbox-item">CNPJ ativo: <span class="fill-blank"></span></div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Simples Nacional</div>
+                    <div class="checkbox-item">Lucro Presumido</div>
+                    <div class="checkbox-item">MEI</div>
+                </div>
+                <div class="checkbox-item">Inscrição Estadual: <span class="fill-blank"></span></div>
+            </div>
+        </div>
+
+        <!-- Seção 3 -->
+        <div class="section">
+            <div class="section-title">3️⃣ Requisitos Fiscais (Estado de São Paulo)</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Obrigatoriedade:</div>
+                <div class="checkbox-item">Precisa emitir documento fiscal obrigatoriamente?</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Sim → Qual usar? (ver seção 4)</div>
+                    <div class="checkbox-item">Não → Pode usar como controle interno por enquanto</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Prazo para adequação:</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Imediato (já está irregular)</div>
+                    <div class="checkbox-item">1-3 meses</div>
+                    <div class="checkbox-item">3-6 meses</div>
+                    <div class="checkbox-item">Sem pressa (uso interno)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página 2 -->
+    <div class="page">
+        <!-- Seção 4 -->
+        <div class="section">
+            <div class="section-title">4️⃣ Escolha da Solução Fiscal</div>
+            
+            <div class="option-card">
+                <h4>Opção A: SAT-CF-e (Sistema Autenticador e Transmissor)</h4>
+                <p><strong>Indicado para:</strong></p>
+                <ul>
+                    <li>Faturamento < R$ 50.000/mês</li>
+                    <li>Apenas consumidor final</li>
+                    <li>Loja física única em SP</li>
+                </ul>
+                <div class="cost-box">
+                    <strong>Custos:</strong><br>
+                    • Equipamento SAT: R$ 800 a R$ 1.500 (compra única)<br>
+                    • Sem mensalidade<br>
+                    • Funciona offline
+                </div>
+                <div class="checkbox-item">Já tem equipamento SAT?</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Sim → Marca/modelo: <span class="fill-blank"></span></div>
+                    <div class="checkbox-item">Não, mas quer comprar</div>
+                    <div class="checkbox-item">Não conhece SAT</div>
+                </div>
+            </div>
+
+            <div class="option-card">
+                <h4>Opção B: NFC-e (Nota Fiscal de Consumidor Eletrônica)</h4>
+                <p><strong>Indicado para:</strong></p>
+                <ul>
+                    <li>Faturamento > R$ 50.000/mês</li>
+                    <li>Múltiplas lojas ou delivery</li>
+                    <li>Vende para empresas também</li>
+                </ul>
+                <div class="cost-box">
+                    <strong>Custos:</strong><br>
+                    • Certificado digital A1: R$ 150-250/ano<br>
+                    • Sistema emissor: R$ 50-200/mês<br>
+                    • Precisa internet estável
+                </div>
+                <div class="checkbox-item">Prefere NFC-e em vez de SAT?</div>
+                <div class="checkbox-item">Tem internet estável na loja?</div>
+                <div class="checkbox-item">Quantas lojas/pontos de venda? <span class="fill-blank"></span></div>
+            </div>
+
+            <div class="option-card">
+                <h4>Opção C: Serviço de Terceiros</h4>
+                <p><strong>Empresas:</strong> FocusNFe, NFE.io, eNotas, PlugNotas</p>
+                <div class="cost-box">
+                    <strong>Custos:</strong> R$ 50-150/mês (cobrem SAT OU NFC-e)<br>
+                    <strong>Vantagens:</strong> Implementação rápida, suporte incluso
+                </div>
+                <div class="checkbox-item">Prefere terceirizar a parte fiscal?</div>
+                <div class="checkbox-item">Orçamento mensal disponível: R$ <span class="fill-blank"></span></div>
+            </div>
+        </div>
+
+        <!-- Seção 5 -->
+        <div class="section">
+            <div class="section-title">5️⃣ Formas de Pagamento</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Aceita hoje:</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Dinheiro</div>
+                    <div class="checkbox-item">PIX (manual ou automático?)</div>
+                    <div class="checkbox-item">Cartão de débito</div>
+                    <div class="checkbox-item">Cartão de crédito</div>
+                    <div class="checkbox-item">Crediário próprio (fiado)</div>
+                    <div class="checkbox-item">Cheque</div>
+                    <div class="checkbox-item">Vale-refeição/alimentação</div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Precisa integrar:</div>
+                <div class="checkbox-item">PIX automático (QR Code gerado pelo sistema)</div>
+                <div class="checkbox-item">Maquininha de cartão (TEF)</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Qual máquina usa? <span class="fill-blank"></span></div>
+                    <div class="checkbox-item">Quer integrar com o sistema?</div>
+                </div>
+                <div class="checkbox-item">Crediário informatizado (controle de dívidas)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página 3 -->
+    <div class="page">
+        <!-- Seção 6 -->
+        <div class="section">
+            <div class="section-title">6️⃣ Equipamentos Disponíveis</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Já tem:</div>
+                <div class="checkbox-item">Computador/tablet para PDV</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Quantos? <span class="fill-blank"></span></div>
+                    <div class="checkbox-item">Sistema operacional: <span class="fill-blank"></span></div>
+                </div>
+                <div class="checkbox-item">Impressora térmica (cupom)</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Marca/modelo: <span class="fill-blank"></span></div>
+                </div>
+                <div class="checkbox-item">Leitor de código de barras</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">USB</div>
+                    <div class="checkbox-item">Bluetooth</div>
+                    <div class="checkbox-item">Nenhum</div>
+                </div>
+                <div class="checkbox-item">Gaveta de dinheiro</div>
+                <div class="checkbox-item">Balança digital</div>
+                <div class="checkbox-item">Roteador Wi-Fi (internet na loja)</div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Precisa comprar:</div>
+                <div class="checkbox-item">Impressora térmica (~R$ 300-600)</div>
+                <div class="checkbox-item">Leitor código de barras (~R$ 100-300)</div>
+                <div class="checkbox-item">Equipamento SAT (~R$ 800-1.500)</div>
+                <div class="checkbox-item">Tablet extra para PDV (~R$ 800-2.000)</div>
+            </div>
+        </div>
+
+        <!-- Seção 7 -->
+        <div class="section">
+            <div class="section-title">7️⃣ Processos Operacionais</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Fluxo de venda atual:</div>
+                <ol>
+                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                </ol>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Pontos de dor (problemas atuais):</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Controle de estoque manual/errado</div>
+                    <div class="checkbox-item">Não sabe o que mais vende</div>
+                    <div class="checkbox-item">Perda de produtos por validade</div>
+                    <div class="checkbox-item">Demora no atendimento</div>
+                    <div class="checkbox-item">Erros no caixa/troco</div>
+                    <div class="checkbox-item">Falta de relatórios gerenciais</div>
+                    <div class="checkbox-item">Outro: <span class="fill-blank"></span></div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Prioridades:</div>
+                <ol>
+                    <li>⭐ Mais importante: <span class="fill-blank" style="min-width: 350px;"></span></li>
+                    <li>⭐ Segunda prioridade: <span class="fill-blank" style="min-width: 330px;"></span></li>
+                    <li>⭐ Terceira prioridade: <span class="fill-blank" style="min-width: 330px;"></span></li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Seção 8 -->
+        <div class="section">
+            <div class="section-title">8️⃣ Cronograma e Orçamento</div>
+            
+            <div class="subsection">
+                <div class="subsection-title">Investimento disponível:</div>
+                <div class="checkbox-item">Equipamentos: R$ <span class="fill-blank"></span></div>
+                <div class="checkbox-item">Mensalidades (sistema fiscal): R$ <span class="fill-blank"></span> /mês</div>
+                <div class="checkbox-item">Desenvolvimento adicional: R$ <span class="fill-blank"></span></div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Prazo desejado:</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">Imediato (1-2 semanas)</div>
+                    <div class="checkbox-item">Curto prazo (1 mês)</div>
+                    <div class="checkbox-item">Médio prazo (2-3 meses)</div>
+                    <div class="checkbox-item">Longo prazo (6+ meses)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página 4 -->
+    <div class="page">
+        <!-- Seção 9 -->
+        <div class="section">
+            <div class="section-title">9️⃣ Outras Necessidades</div>
+            <div class="checkbox-group">
+                <div class="checkbox-item">Delivery/vendas online</div>
+                <div class="checkbox-item">Integração com WhatsApp (pedidos)</div>
+                <div class="checkbox-item">Programa de fidelidade</div>
+                <div class="checkbox-item">Múltiplos usuários/caixas (já implementado ✅)</div>
+                <div class="checkbox-item">Backup automático (já implementado ✅)</div>
+                <div class="checkbox-item">Relatórios gerenciais (já implementado ✅)</div>
+                <div class="checkbox-item">Controle de validade de produtos</div>
+                <div class="checkbox-item">Comissão de vendedores</div>
+                <div class="checkbox-item">Outro: <span class="fill-blank"></span></div>
+            </div>
+        </div>
+
+        <!-- Decisões -->
+        <div class="decision-box">
+            <h3>✅ Decisões Tomadas</h3>
+            
+            <div class="subsection">
+                <div class="subsection-title">Solução Fiscal:</div>
+                <div class="checkbox-item">SAT-CF-e → Comprar equipamento: <span class="fill-blank"></span></div>
+                <div class="checkbox-item">NFC-e → Contratar certificado + emissor</div>
+                <div class="checkbox-item">Serviço terceiro → Contratar: <span class="fill-blank"></span></div>
+                <div class="checkbox-item">Nenhuma (uso interno por enquanto)</div>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Próximos Passos:</div>
+                <ol>
+                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                </ol>
+            </div>
+
+            <div class="subsection">
+                <div class="subsection-title">Responsáveis:</div>
+                <div class="checkbox-item">Proprietário: <span class="fill-blank"></span></div>
+                <div class="checkbox-item">Técnico/Desenvolvedor: <span class="fill-blank"></span></div>
+                <div class="checkbox-item">Contador (se consultar): <span class="fill-blank"></span></div>
+            </div>
+        </div>
+
+        <!-- Contatos -->
+        <div class="section">
+            <div class="section-title">📞 Contatos Importantes</div>
+            <table class="contact-table">
+                <tr>
+                    <td>Contador</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Telefone</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Fornecedor Equipamentos</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Suporte SEFAZ-SP</td>
+                    <td>0800 170 0110</td>
+                </tr>
+                <tr>
+                    <td>Certificadora Digital</td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Dicas -->
+        <div class="tip-box">
+            <strong>Dicas para a Conversa:</strong>
+            <ol>
+                <li>Seja honesto sobre a situação fiscal atual</li>
+                <li>Peça ajuda do contador para definir SAT vs NFC-e</li>
+                <li>Não compre equipamento antes de definir</li>
+                <li>Comece simples: controle interno → fiscal → integrações</li>
+                <li>Priorize o que traz resultado imediato</li>
+            </ol>
+        </div>
+
+        <!-- Anotações -->
+        <div class="section">
+            <div class="section-title">📝 Anotações Livres</div>
+            <div class="notes-area" style="min-height: 100px;"></div>
+        </div>
+    </div>
+</body>
+</html>
