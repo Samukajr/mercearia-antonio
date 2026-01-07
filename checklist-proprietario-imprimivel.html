@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -59,11 +59,21 @@
             color: #2c3e50;
         }
 
-        .info-line .fill-in {
+        .info-line input {
+            border: none;
             border-bottom: 1px solid #000;
             flex: 1;
             margin-left: 10px;
             min-width: 200px;
+            padding: 2px 5px;
+            font-size: 14px;
+            background: transparent;
+        }
+        
+        .info-line input:focus {
+            outline: none;
+            border-bottom: 2px solid #3498db;
+            background: #f0f8ff;
         }
 
         .section {
@@ -98,14 +108,32 @@
             padding: 6px 0;
             padding-left: 25px;
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
-        .checkbox-item::before {
-            content: '☐';
+        .checkbox-item input[type="checkbox"] {
             position: absolute;
             left: 0;
-            font-size: 18px;
-            color: #3498db;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-item input[type="text"],
+        .checkbox-item input[type="number"] {
+            border: none;
+            border-bottom: 1px solid #333;
+            padding: 2px 5px;
+            margin: 0 3px;
+            font-size: 14px;
+            background: transparent;
+        }
+        
+        .checkbox-item input:focus {
+            outline: none;
+            border-bottom: 2px solid #3498db;
+            background: #f0f8ff;
         }
 
         .checkbox-group {
@@ -113,10 +141,20 @@
         }
 
         .fill-blank {
+            border: none;
             border-bottom: 1px solid #000;
             display: inline-block;
             min-width: 150px;
             margin: 0 3px;
+            padding: 2px 5px;
+            font-size: 14px;
+            background: transparent;
+        }
+        
+        .fill-blank:focus {
+            outline: none;
+            border-bottom: 2px solid #3498db;
+            background: #f0f8ff;
         }
 
         .highlight-box {
@@ -153,9 +191,19 @@
         .notes-area {
             border: 1px solid #bdc3c7;
             min-height: 60px;
+            width: 100%;
             padding: 8px;
             margin-top: 5px;
             background: #fafafa;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+        
+        .notes-area:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
         }
 
         .decision-box {
@@ -253,9 +301,18 @@
                 page-break-inside: avoid;
             }
 
-            .checkbox-item::before {
-                content: '□';
-                color: #000;
+            .checkbox-item input[type="checkbox"] {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .checkbox-item input[type="text"],
+            .checkbox-item input[type="number"],
+            .fill-blank,
+            .info-line input,
+            .notes-area {
+                border-bottom: 1px solid #000 !important;
+                background: transparent !important;
             }
         }
     </style>
@@ -274,27 +331,27 @@
 
         <div class="info-line">
             <label>Data da Reunião:</label>
-            <span class="fill-in"></span>
+            <input type="date" class="fill-in">
         </div>
         <div class="info-line">
             <label>Participantes:</label>
-            <span class="fill-in"></span>
+            <input type="text" class="fill-in">
         </div>
 
         <!-- Seção 1 -->
         <div class="section">
             <div class="section-title">1️⃣ Informações Básicas do Negócio</div>
             
-            <div class="checkbox-item">Faturamento mensal médio: R$ <span class="fill-blank"></span></div>
-            <div class="checkbox-item">Número de vendas por dia: <span class="fill-blank"></span></div>
-            <div class="checkbox-item">Ticket médio: R$ <span class="fill-blank"></span></div>
+            <div class="checkbox-item"><input type="checkbox"> Faturamento mensal médio: R$ <input type="text" class="fill-blank"></div>
+            <div class="checkbox-item"><input type="checkbox"> Número de vendas por dia: <input type="text" class="fill-blank"></div>
+            <div class="checkbox-item"><input type="checkbox"> Ticket médio: R$ <input type="text" class="fill-blank"></div>
             
             <div class="subsection">
                 <div class="subsection-title">Tipo de cliente principal:</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Consumidor final (B2C)</div>
-                    <div class="checkbox-item">Empresas/CNPJ (B2B)</div>
-                    <div class="checkbox-item">Ambos</div>
+                    <div class="checkbox-item"><input type="checkbox"> Consumidor final (B2C)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Empresas/CNPJ (B2B)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Ambos</div>
                 </div>
             </div>
         </div>
@@ -306,33 +363,33 @@
             <div class="subsection">
                 <div class="subsection-title">Documentos fiscais usados hoje:</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Cupom fiscal (ECF - máquina antiga)</div>
-                    <div class="checkbox-item">Nota fiscal manual (talão)</div>
-                    <div class="checkbox-item">SAT-CF-e (equipamento SAT)</div>
-                    <div class="checkbox-item">NFC-e (nota eletrônica)</div>
-                    <div class="checkbox-item">Nenhum (informal)</div>
-                    <div class="checkbox-item">Outro: <span class="fill-blank"></span></div>
+                    <div class="checkbox-item"><input type="checkbox"> Cupom fiscal (ECF - máquina antiga)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Nota fiscal manual (talão)</div>
+                    <div class="checkbox-item"><input type="checkbox"> SAT-CF-e (equipamento SAT)</div>
+                    <div class="checkbox-item"><input type="checkbox"> NFC-e (nota eletrônica)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Nenhum (informal)</div>
+                    <div class="checkbox-item">Outro: <input type="text" class="fill-blank"></div>
                 </div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Certificado Digital:</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Tem certificado digital A1? Válido até: <span class="fill-blank"></span></div>
-                    <div class="checkbox-item">Não tem certificado</div>
-                    <div class="checkbox-item">Não sabe o que é</div>
+                    <div class="checkbox-item"><input type="checkbox"> Tem certificado digital A1? Válido até: <input type="date" class="fill-blank"></div>
+                    <div class="checkbox-item"><input type="checkbox"> Não tem certificado</div>
+                    <div class="checkbox-item"><input type="checkbox"> Não sabe o que é</div>
                 </div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">CNPJ:</div>
-                <div class="checkbox-item">CNPJ ativo: <span class="fill-blank"></span></div>
+                <div class="checkbox-item"><input type="checkbox"> CNPJ ativo: <input type="text" class="fill-blank"></div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Simples Nacional</div>
-                    <div class="checkbox-item">Lucro Presumido</div>
-                    <div class="checkbox-item">MEI</div>
+                    <div class="checkbox-item"><input type="checkbox"> Simples Nacional</div>
+                    <div class="checkbox-item"><input type="checkbox"> Lucro Presumido</div>
+                    <div class="checkbox-item"><input type="checkbox"> MEI</div>
                 </div>
-                <div class="checkbox-item">Inscrição Estadual: <span class="fill-blank"></span></div>
+                <div class="checkbox-item"><input type="checkbox"> Inscrição Estadual: <input type="text" class="fill-blank"></div>
             </div>
         </div>
 
@@ -342,20 +399,20 @@
             
             <div class="subsection">
                 <div class="subsection-title">Obrigatoriedade:</div>
-                <div class="checkbox-item">Precisa emitir documento fiscal obrigatoriamente?</div>
+                <div class="checkbox-item"><input type="checkbox"> Precisa emitir documento fiscal obrigatoriamente?</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Sim → Qual usar? (ver seção 4)</div>
-                    <div class="checkbox-item">Não → Pode usar como controle interno por enquanto</div>
+                    <div class="checkbox-item"><input type="checkbox"> Sim → Qual usar? (ver seção 4)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Não → Pode usar como controle interno por enquanto</div>
                 </div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Prazo para adequação:</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Imediato (já está irregular)</div>
-                    <div class="checkbox-item">1-3 meses</div>
-                    <div class="checkbox-item">3-6 meses</div>
-                    <div class="checkbox-item">Sem pressa (uso interno)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Imediato (já está irregular)</div>
+                    <div class="checkbox-item"><input type="checkbox"> 1-3 meses</div>
+                    <div class="checkbox-item"><input type="checkbox"> 3-6 meses</div>
+                    <div class="checkbox-item"><input type="checkbox"> Sem pressa (uso interno)</div>
                 </div>
             </div>
         </div>
@@ -381,11 +438,11 @@
                     • Sem mensalidade<br>
                     • Funciona offline
                 </div>
-                <div class="checkbox-item">Já tem equipamento SAT?</div>
+                <div class="checkbox-item"><input type="checkbox"> Já tem equipamento SAT?</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Sim → Marca/modelo: <span class="fill-blank"></span></div>
-                    <div class="checkbox-item">Não, mas quer comprar</div>
-                    <div class="checkbox-item">Não conhece SAT</div>
+                    <div class="checkbox-item">Sim → Marca/modelo: <input type="text" class="fill-blank"></div>
+                    <div class="checkbox-item"><input type="checkbox"> Não, mas quer comprar</div>
+                    <div class="checkbox-item"><input type="checkbox"> Não conhece SAT</div>
                 </div>
             </div>
 
@@ -403,9 +460,9 @@
                     • Sistema emissor: R$ 50-200/mês<br>
                     • Precisa internet estável
                 </div>
-                <div class="checkbox-item">Prefere NFC-e em vez de SAT?</div>
-                <div class="checkbox-item">Tem internet estável na loja?</div>
-                <div class="checkbox-item">Quantas lojas/pontos de venda? <span class="fill-blank"></span></div>
+                <div class="checkbox-item"><input type="checkbox"> Prefere NFC-e em vez de SAT?</div>
+                <div class="checkbox-item"><input type="checkbox"> Tem internet estável na loja?</div>
+                <div class="checkbox-item">Quantas lojas/pontos de venda? <input type="text" class="fill-blank"></div>
             </div>
 
             <div class="option-card">
@@ -415,8 +472,8 @@
                     <strong>Custos:</strong> R$ 50-150/mês (cobrem SAT OU NFC-e)<br>
                     <strong>Vantagens:</strong> Implementação rápida, suporte incluso
                 </div>
-                <div class="checkbox-item">Prefere terceirizar a parte fiscal?</div>
-                <div class="checkbox-item">Orçamento mensal disponível: R$ <span class="fill-blank"></span></div>
+                <div class="checkbox-item"><input type="checkbox"> Prefere terceirizar a parte fiscal?</div>
+                <div class="checkbox-item">Orçamento mensal disponível: R$ <input type="text" class="fill-blank"></div>
             </div>
         </div>
 
@@ -427,25 +484,25 @@
             <div class="subsection">
                 <div class="subsection-title">Aceita hoje:</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Dinheiro</div>
-                    <div class="checkbox-item">PIX (manual ou automático?)</div>
-                    <div class="checkbox-item">Cartão de débito</div>
-                    <div class="checkbox-item">Cartão de crédito</div>
-                    <div class="checkbox-item">Crediário próprio (fiado)</div>
-                    <div class="checkbox-item">Cheque</div>
-                    <div class="checkbox-item">Vale-refeição/alimentação</div>
+                    <div class="checkbox-item"><input type="checkbox"> Dinheiro</div>
+                    <div class="checkbox-item"><input type="checkbox"> PIX (manual ou automático?)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Cartão de débito</div>
+                    <div class="checkbox-item"><input type="checkbox"> Cartão de crédito</div>
+                    <div class="checkbox-item"><input type="checkbox"> Crediário próprio (fiado)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Cheque</div>
+                    <div class="checkbox-item"><input type="checkbox"> Vale-refeição/alimentação</div>
                 </div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Precisa integrar:</div>
-                <div class="checkbox-item">PIX automático (QR Code gerado pelo sistema)</div>
-                <div class="checkbox-item">Maquininha de cartão (TEF)</div>
+                <div class="checkbox-item"><input type="checkbox"> PIX automático (QR Code gerado pelo sistema)</div>
+                <div class="checkbox-item"><input type="checkbox"> Maquininha de cartão (TEF)</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Qual máquina usa? <span class="fill-blank"></span></div>
-                    <div class="checkbox-item">Quer integrar com o sistema?</div>
+                    <div class="checkbox-item">Qual máquina usa? <input type="text" class="fill-blank"></div>
+                    <div class="checkbox-item"><input type="checkbox"> Quer integrar com o sistema?</div>
                 </div>
-                <div class="checkbox-item">Crediário informatizado (controle de dívidas)</div>
+                <div class="checkbox-item"><input type="checkbox"> Crediário informatizado (controle de dívidas)</div>
             </div>
         </div>
     </div>
@@ -458,32 +515,32 @@
             
             <div class="subsection">
                 <div class="subsection-title">Já tem:</div>
-                <div class="checkbox-item">Computador/tablet para PDV</div>
+                <div class="checkbox-item"><input type="checkbox"> Computador/tablet para PDV</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Quantos? <span class="fill-blank"></span></div>
-                    <div class="checkbox-item">Sistema operacional: <span class="fill-blank"></span></div>
+                    <div class="checkbox-item">Quantos? <input type="text" class="fill-blank"></div>
+                    <div class="checkbox-item">Sistema operacional: <input type="text" class="fill-blank"></div>
                 </div>
-                <div class="checkbox-item">Impressora térmica (cupom)</div>
+                <div class="checkbox-item"><input type="checkbox"> Impressora térmica (cupom)</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Marca/modelo: <span class="fill-blank"></span></div>
+                    <div class="checkbox-item">Marca/modelo: <input type="text" class="fill-blank"></div>
                 </div>
-                <div class="checkbox-item">Leitor de código de barras</div>
+                <div class="checkbox-item"><input type="checkbox"> Leitor de código de barras</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">USB</div>
-                    <div class="checkbox-item">Bluetooth</div>
-                    <div class="checkbox-item">Nenhum</div>
+                    <div class="checkbox-item"><input type="checkbox"> USB</div>
+                    <div class="checkbox-item"><input type="checkbox"> Bluetooth</div>
+                    <div class="checkbox-item"><input type="checkbox"> Nenhum</div>
                 </div>
-                <div class="checkbox-item">Gaveta de dinheiro</div>
-                <div class="checkbox-item">Balança digital</div>
-                <div class="checkbox-item">Roteador Wi-Fi (internet na loja)</div>
+                <div class="checkbox-item"><input type="checkbox"> Gaveta de dinheiro</div>
+                <div class="checkbox-item"><input type="checkbox"> Balança digital</div>
+                <div class="checkbox-item"><input type="checkbox"> Roteador Wi-Fi (internet na loja)</div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Precisa comprar:</div>
-                <div class="checkbox-item">Impressora térmica (~R$ 300-600)</div>
-                <div class="checkbox-item">Leitor código de barras (~R$ 100-300)</div>
-                <div class="checkbox-item">Equipamento SAT (~R$ 800-1.500)</div>
-                <div class="checkbox-item">Tablet extra para PDV (~R$ 800-2.000)</div>
+                <div class="checkbox-item"><input type="checkbox"> Impressora térmica (~R$ 300-600)</div>
+                <div class="checkbox-item"><input type="checkbox"> Leitor código de barras (~R$ 100-300)</div>
+                <div class="checkbox-item"><input type="checkbox"> Equipamento SAT (~R$ 800-1.500)</div>
+                <div class="checkbox-item"><input type="checkbox"> Tablet extra para PDV (~R$ 800-2.000)</div>
             </div>
         </div>
 
@@ -494,31 +551,31 @@
             <div class="subsection">
                 <div class="subsection-title">Fluxo de venda atual:</div>
                 <ol>
-                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
-                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
-                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                    <li><input type="text" class="fill-blank" style="min-width: 400px;"></li>
+                    <li><input type="text" class="fill-blank" style="min-width: 400px;"></li>
+                    <li><input type="text" class="fill-blank" style="min-width: 400px;"></li>
                 </ol>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Pontos de dor (problemas atuais):</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Controle de estoque manual/errado</div>
-                    <div class="checkbox-item">Não sabe o que mais vende</div>
-                    <div class="checkbox-item">Perda de produtos por validade</div>
-                    <div class="checkbox-item">Demora no atendimento</div>
-                    <div class="checkbox-item">Erros no caixa/troco</div>
-                    <div class="checkbox-item">Falta de relatórios gerenciais</div>
-                    <div class="checkbox-item">Outro: <span class="fill-blank"></span></div>
+                    <div class="checkbox-item"><input type="checkbox"> Controle de estoque manual/errado</div>
+                    <div class="checkbox-item"><input type="checkbox"> Não sabe o que mais vende</div>
+                    <div class="checkbox-item"><input type="checkbox"> Perda de produtos por validade</div>
+                    <div class="checkbox-item"><input type="checkbox"> Demora no atendimento</div>
+                    <div class="checkbox-item"><input type="checkbox"> Erros no caixa/troco</div>
+                    <div class="checkbox-item"><input type="checkbox"> Falta de relatórios gerenciais</div>
+                    <div class="checkbox-item">Outro: <input type="text" class="fill-blank"></div>
                 </div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Prioridades:</div>
                 <ol>
-                    <li>⭐ Mais importante: <span class="fill-blank" style="min-width: 350px;"></span></li>
-                    <li>⭐ Segunda prioridade: <span class="fill-blank" style="min-width: 330px;"></span></li>
-                    <li>⭐ Terceira prioridade: <span class="fill-blank" style="min-width: 330px;"></span></li>
+                    <li>⭐ Mais importante: <input type="text" class="fill-blank" style="min-width: 350px;"></li>
+                    <li>⭐ Segunda prioridade: <input type="text" class="fill-blank" style="min-width: 330px;"></li>
+                    <li>⭐ Terceira prioridade: <input type="text" class="fill-blank" style="min-width: 330px;"></li>
                 </ol>
             </div>
         </div>
@@ -529,18 +586,18 @@
             
             <div class="subsection">
                 <div class="subsection-title">Investimento disponível:</div>
-                <div class="checkbox-item">Equipamentos: R$ <span class="fill-blank"></span></div>
-                <div class="checkbox-item">Mensalidades (sistema fiscal): R$ <span class="fill-blank"></span> /mês</div>
-                <div class="checkbox-item">Desenvolvimento adicional: R$ <span class="fill-blank"></span></div>
+                <div class="checkbox-item">Equipamentos: R$ <input type="text" class="fill-blank"></div>
+                <div class="checkbox-item">Mensalidades (sistema fiscal): R$ <input type="text" class="fill-blank"> /mês</div>
+                <div class="checkbox-item">Desenvolvimento adicional: R$ <input type="text" class="fill-blank"></div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Prazo desejado:</div>
                 <div class="checkbox-group">
-                    <div class="checkbox-item">Imediato (1-2 semanas)</div>
-                    <div class="checkbox-item">Curto prazo (1 mês)</div>
-                    <div class="checkbox-item">Médio prazo (2-3 meses)</div>
-                    <div class="checkbox-item">Longo prazo (6+ meses)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Imediato (1-2 semanas)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Curto prazo (1 mês)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Médio prazo (2-3 meses)</div>
+                    <div class="checkbox-item"><input type="checkbox"> Longo prazo (6+ meses)</div>
                 </div>
             </div>
         </div>
@@ -552,15 +609,15 @@
         <div class="section">
             <div class="section-title">9️⃣ Outras Necessidades</div>
             <div class="checkbox-group">
-                <div class="checkbox-item">Delivery/vendas online</div>
-                <div class="checkbox-item">Integração com WhatsApp (pedidos)</div>
-                <div class="checkbox-item">Programa de fidelidade</div>
-                <div class="checkbox-item">Múltiplos usuários/caixas (já implementado ✅)</div>
-                <div class="checkbox-item">Backup automático (já implementado ✅)</div>
-                <div class="checkbox-item">Relatórios gerenciais (já implementado ✅)</div>
-                <div class="checkbox-item">Controle de validade de produtos</div>
-                <div class="checkbox-item">Comissão de vendedores</div>
-                <div class="checkbox-item">Outro: <span class="fill-blank"></span></div>
+                <div class="checkbox-item"><input type="checkbox"> Delivery/vendas online</div>
+                <div class="checkbox-item"><input type="checkbox"> Integração com WhatsApp (pedidos)</div>
+                <div class="checkbox-item"><input type="checkbox"> Programa de fidelidade</div>
+                <div class="checkbox-item"><input type="checkbox"> Múltiplos usuários/caixas (já implementado ✅)</div>
+                <div class="checkbox-item"><input type="checkbox"> Backup automático (já implementado ✅)</div>
+                <div class="checkbox-item"><input type="checkbox"> Relatórios gerenciais (já implementado ✅)</div>
+                <div class="checkbox-item"><input type="checkbox"> Controle de validade de produtos</div>
+                <div class="checkbox-item"><input type="checkbox"> Comissão de vendedores</div>
+                <div class="checkbox-item">Outro: <input type="text" class="fill-blank"></div>
             </div>
         </div>
 
@@ -570,26 +627,26 @@
             
             <div class="subsection">
                 <div class="subsection-title">Solução Fiscal:</div>
-                <div class="checkbox-item">SAT-CF-e → Comprar equipamento: <span class="fill-blank"></span></div>
-                <div class="checkbox-item">NFC-e → Contratar certificado + emissor</div>
-                <div class="checkbox-item">Serviço terceiro → Contratar: <span class="fill-blank"></span></div>
-                <div class="checkbox-item">Nenhuma (uso interno por enquanto)</div>
+                <div class="checkbox-item">SAT-CF-e → Comprar equipamento: <input type="text" class="fill-blank"></div>
+                <div class="checkbox-item"><input type="checkbox"> NFC-e → Contratar certificado + emissor</div>
+                <div class="checkbox-item">Serviço terceiro → Contratar: <input type="text" class="fill-blank"></div>
+                <div class="checkbox-item"><input type="checkbox"> Nenhuma (uso interno por enquanto)</div>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Próximos Passos:</div>
                 <ol>
-                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
-                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
-                    <li><span class="fill-blank" style="min-width: 400px;"></span></li>
+                    <li><input type="text" class="fill-blank" style="min-width: 400px;"></li>
+                    <li><input type="text" class="fill-blank" style="min-width: 400px;"></li>
+                    <li><input type="text" class="fill-blank" style="min-width: 400px;"></li>
                 </ol>
             </div>
 
             <div class="subsection">
                 <div class="subsection-title">Responsáveis:</div>
-                <div class="checkbox-item">Proprietário: <span class="fill-blank"></span></div>
-                <div class="checkbox-item">Técnico/Desenvolvedor: <span class="fill-blank"></span></div>
-                <div class="checkbox-item">Contador (se consultar): <span class="fill-blank"></span></div>
+                <div class="checkbox-item">Proprietário: <input type="text" class="fill-blank"></div>
+                <div class="checkbox-item">Técnico/Desenvolvedor: <input type="text" class="fill-blank"></div>
+                <div class="checkbox-item">Contador (se consultar): <input type="text" class="fill-blank"></div>
             </div>
         </div>
 
@@ -635,7 +692,7 @@
         <!-- Anotações -->
         <div class="section">
             <div class="section-title">📝 Anotações Livres</div>
-            <div class="notes-area" style="min-height: 100px;"></div>
+            <textarea class="notes-area" style="min-height: 100px;"></textarea>
         </div>
     </div>
 </body>
